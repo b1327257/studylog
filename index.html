@@ -277,7 +277,7 @@ return `<div class="card"><h2><span>今週の目標</span><span>${wStart.getMont
 <div class="row" style="margin-top:10px"><div><div class="sub">週目標（時間）</div><input type="number" min="0.5" step="0.5" value="${S.goal}" oninput="setGoal(this.value)" style="margin:0"></div><div><div class="sub">1日目標（分）</div><input type="number" min="0" step="5" value="${DG()}" oninput="setDGoal(this.value)" style="margin:0"></div><div><div class="sub">最低ライン（分）</div><input type="number" min="0" step="5" value="${MN()}" oninput="setMinDay(this.value)" style="margin:0"></div></div></div>${subWeek()}
 <div class="card"><h2><span>タイマー</span>${cur?`<span style="color:${col(cur)}">● ${esc(cur.title)}</span>`:''}</h2><div class="clock" id="clock">00:00:00</div>
 ${shelfHTML(curId,'selectMat')}
-<div class="row"><button onclick="toggle()" ${S.mats.length?'':'disabled'}>${run?'一時停止':t?'再開':'スタート'}</button>${t?'<button class="r" onclick="finish()">終了して記録</button>':'<button class="g" onclick="addNew();tab='log';render()">手動で記録</button>'}</div></div>`}
+<div class="row"><button onclick="toggle()" ${S.mats.length?'':'disabled'}>${run?'一時停止':t?'再開':'スタート'}</button>${t?'<button class="r" onclick="finish()">終了して記録</button>':'<button class="g" onclick="openManualLog()">手動で記録</button>'}</div></div>`}
 
 /* 記録 */
 function setT(d,t){if(t)ed.nt=0;d=d||dk(ed.t);t=t||tm(ed.t);ed.t=new Date(d+'T'+t).getTime()||ed.t}
@@ -316,6 +316,7 @@ let _u=0;const uid=()=>{_u=Math.max(_u+1,Date.now());return _u};
 function resFr(e){if(e.to===''||e.to==null)return null;if(e.fr!==''&&e.fr!=null)return +e.fr;if(e.amt!==''&&e.amt!=null&&+e.amt>0)return +e.to-+e.amt+1;const pv=prevTo();if(pv!=null)return pv+1;return null}
 function saveEd(){const e=ed;if(!e.mid||!(e.sec>0))return;const r={id:e.id||uid(),mid:+e.mid,t:e.t,sec:Math.round(e.sec),amt:e.amt===''||e.amt==null?null:+e.amt,to:e.to===''||e.to==null?null:+e.to,fr:resFr(e),focus:e.focus||0,memo:e.memo||'',nt:e.nt||0};
 const i=S.logs.findIndex(l=>l.id==r.id);if(i>=0)S.logs[i]=r;else S.logs.push(r);S.sel=r.mid;ed=null;save();render()}
+function openManualLog(){tab='log';addNew();}
 function addNew(mid){ed={id:null,mid:mid||S.sel||(S.mats[0]&&S.mats[0].id),t:Date.now(),sec:1800,amt:'',fr:'',to:'',focus:0,memo:''};render()}
 function editLog(id){const l=S.logs.find(x=>x.id==id);if(!l)return;ed={...l,amt:l.amt??'',fr:l.fr??'',to:l.to??''};render();scrollTo(0,0)}
 function vLog(){const ls=[...S.logs].sort((a,b)=>b.t-a.t).slice(0,150),g={};ls.forEach(l=>(g[dk(l.t)]=g[dk(l.t)]||[]).push(l));
