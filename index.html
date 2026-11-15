@@ -55,7 +55,8 @@ nav button{flex:1;background:none;color:var(--sub);border-radius:0;padding:13px 
 .cv-btn{cursor:pointer;position:relative}
 .cv-btn::after{content:"📷";position:absolute;right:3px;bottom:3px;font-size:11px;background:#000a;color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center}
 .it{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--bd);font-size:14px}.it:last-child{border:0}
-.it>div:nth-child(2){flex:1;min-width:0}
+.it-body{flex:1;min-width:0}
+.it .cv{width:36px;height:48px;flex:0 0 36px;border-radius:4px;font-size:12px}
 .it button{padding:5px 9px;font-size:12px}.dh{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);margin:12px 0 2px}
 textarea{min-height:110px;font-size:12px}
 #mini{position:fixed;top:0;left:0;right:0;z-index:12;display:none;align-items:center;gap:8px;background:var(--ac);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 8px) 14px 8px}
@@ -77,14 +78,29 @@ textarea{min-height:110px;font-size:12px}
 .kpis b{display:block;font-size:16px;font-variant-numeric:tabular-nums;margin-top:2px}
 .hm{display:grid;grid-template-rows:repeat(7,auto);grid-auto-flow:column;grid-template-columns:repeat(15,1fr);gap:3px}.hm i{aspect-ratio:1;border-radius:3px;display:block}
 .st{display:flex;gap:1px;height:12px;margin:6px 0}.st i{flex:1;border-radius:2px;display:block}
-.mtx{width:100%;border-collapse:collapse;font-size:11px;margin-top:10px;font-variant-numeric:tabular-nums}
-.mtx th,.mtx td{padding:6px 3px;text-align:center;border-bottom:1px solid var(--bd)}
-.mtx th{color:var(--sub);font-weight:600;font-size:10px}
-.mtx td:first-child,.mtx th:first-child{text-align:left;max-width:130px}
-.mtx .mcell{display:flex;align-items:center;gap:6px;min-width:0}
-.mtx .mbar{width:4px;height:28px;border-radius:2px;flex:none}
-.mtx .mcell .cv{width:22px;height:30px;border-radius:3px;font-size:9px;border-left-width:2px}
-.mtx .mcell b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.2;font-size:11px}
+.mlist{margin-top:12px;border-top:1px solid var(--bd);padding-top:8px}
+.mitem{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.mitem:last-child{border:0}
+.mitem .cv{width:32px;height:42px;flex:0 0 32px;font-size:11px;border-radius:4px}
+.mitem-main{flex:1;min-width:0}
+.mitem-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px}
+.mitem-top b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mitem-top span{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:13px}
+.mitem-bar{height:6px;background:var(--bd);border-radius:4px;overflow:hidden;margin:4px 0}
+.mitem-bar i{display:block;height:100%;border-radius:4px}
+.mitem-sub{font-size:11px;color:var(--sub)}
+.mo-list{margin-top:12px;border-top:1px solid var(--bd);padding-top:8px}
+.mo-row{display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid var(--bd);cursor:pointer;border-radius:8px}
+.mo-row:last-child{border:0}
+.mo-row.on{background:var(--bg)}
+.mo-lbl{width:84px;flex:none;font-size:12px;font-weight:600}
+.mo-bar{flex:1;height:8px;background:var(--bd);border-radius:4px;overflow:hidden}
+.mo-bar i{display:block;height:100%;background:var(--ac);border-radius:4px}
+.mo-val{width:80px;flex:none;text-align:right;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+#cfm{position:fixed;inset:0;z-index:40;background:#0006;display:none;align-items:center;justify-content:center;padding:20px}
+#cfm .cm-box{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:18px;width:100%;max-width:340px;box-shadow:0 10px 30px #0004}
+#cfm .cm-t{font-size:15px;font-weight:700;margin-bottom:6px}
+#cfm .cm-m{font-size:13px;color:var(--sub);line-height:1.5;margin-bottom:14px}
 .cat-tag{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700}
 .cat-tag i{width:8px;height:16px;border-radius:3px;display:inline-block}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:15;display:none;align-items:center;gap:10px;background:var(--tx);color:var(--bg);padding:10px 14px;border-radius:12px;font-size:14px;white-space:nowrap}#toast button{padding:4px 10px;background:var(--ac);color:#fff}
@@ -103,14 +119,14 @@ textarea{min-height:110px;font-size:12px}
   </div>
   <div class="hdr-title">勉強ログ</div>
 </header>
-<div id="v"></div><div id="toast"></div><div id="cel"></div>
+<div id="v"></div><div id="toast"></div><div id="cel"></div><div id="cfm" onclick="if(event.target===this)closeCfm()"></div>
 <input id="ph" type="file" accept="image/*" style="display:none" onchange="onPhoto(this)">
 <nav><button data-t="home">ホーム</button><button data-t="log">記録</button><button data-t="stat">振り返り</button><button data-t="mat">設定</button></nav>
 <script>
 const K='studylog2',DB_NAME='StudyLogDB',DB_STORE='state';
 const COL=['#ef4444','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899','#06b6d4','#f97316','#6366f1','#14b8a6'],DW='日月火水木金土';
 let S={subs:[],mats:[],logs:[],goal:14,dgoal:60,minDay:15,timer:null,sel:null,cel:{}},dbRef=null,photoTarget=null;
-let tab='home',mode='week',off=0,ed=null,pu=0,md={sid:'',title:'',unit:'ページ',cover:'',color:'',msg:'',ns:''},wl,ptxt='',pe=null,es=null,us=null,ut,ct,fmat='all';
+let tab='home',mode='week',off=0,ed=null,pu=0,md={sid:'',title:'',unit:'ページ',cover:'',color:'',msg:'',ns:''},wl,ptxt='',pe=null,es=null,us=null,ut,ct,fmat='all',showAddMat=false,cfmFn=null;
 let im={text:'',rows:null,map:{},unit:'60',out:null,done:''};
 
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -233,9 +249,9 @@ function onPhoto(inp){
   img.src=url;
 }
 function clearCover(target){
-  if(target==='new'){md.cover=''}
-  else{const m=mat(target);if(m){m.cover='';save()}}
-  render();
+  if(target==='new'){md.cover='';render();return}
+  const m=mat(target);if(!m)return;
+  askDel('表紙画像を削除しますか？',`「${m.title}」の表紙画像を削除します。`,()=>{m.cover='';save();render()});
 }
 
 /* タイマー */
@@ -293,7 +309,7 @@ ${shelfHTML(e.mid,'selEdMat')}
 <div class="row"><input id="ed_fr" type="number" placeholder="開始位置${pv!=null?'（'+(pv+1)+'）':''}" value="${e.fr??''}" oninput="setFr(this.value)"><input id="ed_to" type="number" placeholder="終了位置" value="${e.to??''}" oninput="setTo(this.value)"></div>
 <div class="sub" style="margin-bottom:4px">集中度</div><div class="seg">${[1,2,3].map(n=>`<button type="button" class="${e.focus==n?'on':''}" onclick="ed.focus=ed.focus==${n}?0:${n};render()">${['△ いまいち','○ ふつう','◎ 集中'][n-1]}</button>`).join('')}</div>
 <input placeholder="メモ" value="${esc(e.memo||'')}" oninput="ed.memo=this.value">
-<div class="row"><button onclick="saveEd()">保存</button><button class="g" onclick="ed=null;render()">キャンセル</button></div></div>`}
+<div class="row"><button onclick="saveEd()">保存</button><button class="g" onclick="ed=null;render()">キャンセル</button></div>${e.id?`<button type="button" class="g" style="width:100%;margin-top:8px;color:#e5484d;border-color:#e5484d44" onclick="reqDelLog(${e.id})">この記録を削除</button>`:""}</div>`}
 function prevTo(){const m=mat(ed.mid),ls=S.logs.filter(x=>x.mid==ed.mid&&x.to!=null&&x.id!=ed.id&&x.t<=ed.t);return ls.length?Math.max(...ls.map(x=>x.to)):(m&&(m.from>1||m.total)?(m.from||1)-1:null)}
 function stp(d){
   const next=Math.max(0,(+ed.amt||0)+d);
@@ -321,7 +337,7 @@ function addNew(mid){ed={id:null,mid:mid||S.sel||(S.mats[0]&&S.mats[0].id),t:Dat
 function editLog(id){const l=S.logs.find(x=>x.id==id);if(!l)return;ed={...l,amt:l.amt??'',fr:l.fr??'',to:l.to??''};render();scrollTo(0,0)}
 function vLog(){const ls=[...S.logs].sort((a,b)=>b.t-a.t).slice(0,150),g={};ls.forEach(l=>(g[dk(l.t)]=g[dk(l.t)]||[]).push(l));
 return (ed?vForm():S.mats.length?`<div class="card"><h2>教材をタップして記録を追加</h2>${shelfHTML(null,'addNew')}</div>`:'')+
-`<div class="card"><h2>タイムライン</h2>${ls.length?Object.entries(g).map(([d,a])=>{const dd=new Date(d.replace(/-/g,'/'));return `<div class="dh"><b>${dd.getMonth()+1}/${dd.getDate()}（${DW[dd.getDay()]}）</b><span>${hm(sm(a))}</span></div>`+a.map(l=>{const m=mat(l.mid);return `<div class="it"><div style="width:4px;height:44px;border-radius:2px;background:${col(m)};flex:none"></div>${cover(m)}<div><b>${esc(m?m.title:'削除済み')}</b><div class="sub">${l.nt?'':tm(l.t)+'〜 '}<b style="color:var(--tx)">${hm(l.sec)}</b>${l.amt!=null?' ／ '+l.amt+(m?m.unit:'')+(l.to!=null?'（'+(l.fr!=null?l.fr:'')+'〜'+l.to+'）':''):''}${l.focus?' ／ '+['','△','○','◎'][l.focus]:''}${l.memo?'<br>'+esc(l.memo):''}</div></div><button class="g" onclick="editLog(${l.id})">編集</button><button class="g" onclick="del(()=>{S.logs=S.logs.filter(x=>x.id!=${l.id});save();render()})">削除</button></div>`}).join('')}).join(''):'<div class="sub">記録がありません</div>'}</div>`}
+`<div class="card"><h2>タイムライン</h2>${ls.length?Object.entries(g).map(([d,a])=>{const dd=new Date(d.replace(/-/g,'/'));return `<div class="dh"><b>${dd.getMonth()+1}/${dd.getDate()}（${DW[dd.getDay()]}）</b><span>${hm(sm(a))}</span></div>`+a.map(l=>{const m=mat(l.mid);return `<div class="it"><div style="width:4px;height:44px;border-radius:2px;background:${col(m)};flex:none"></div>${cover(m)}<div class="it-body"><b>${esc(m?m.title:'削除済み')}</b><div class="sub">${l.nt?'':tm(l.t)+'〜 '}<b style="color:var(--tx)">${hm(l.sec)}</b>${l.amt!=null?' ／ '+l.amt+(m?m.unit:'')+(l.to!=null?'（'+(l.fr!=null?l.fr:'')+'〜'+l.to+'）':''):''}${l.focus?' ／ '+['','△','○','◎'][l.focus]:''}${l.memo?'<br>'+esc(l.memo):''}</div></div><button class="g" onclick="editLog(${l.id})">編集</button></div>`}).join('')}).join(''):'<div class="sub">記録がありません</div>'}</div>`}
 
 /* 振り返り（Studyplus風の教材色分け積み上げグラフ＋期間自動ジャンプ＋教材別マトリクス表） */
 function jumpLatest(){
@@ -381,15 +397,28 @@ function stackedBars(bk,matOrder){
     return `<div class="col"><div class="vl">${showLbl?hm(t):''}</div><div class="stk" style="height:${hPct}%;${t?'':'opacity:.25'}">${segs}</div><div class="lb">${x[2]}</div></div>`;
   }).join('')}</div>`;
 }
-function matrixTable(bk,pm){
-  if(bk.length>7||!pm.length)return '';
-  return `<table class="mtx"><thead><tr><th>教材</th>${bk.map(x=>`<th>${x[2]}${x[3]?`<br>${x[3]}`:''}</th>`).join('')}</tr></thead><tbody>${pm.map(([id])=>{
-    const m=mat(id);
-    return `<tr><td><div class="mcell"><div class="mbar" style="background:${col(m)}"></div>${cover(m)}<b>${esc(m?m.title:'削除済み')}</b></div></td>${bk.map(x=>{
-      const s=sm(inR(x[0],x[1]).filter(l=>l.mid==id));
-      return `<td style="color:${s?'var(--tx)':'var(--sub)'};font-weight:${s?600:400}">${s?hm(s):'0分'}</td>`;
-    }).join('')}</tr>`;
-  }).join('')}</tbody></table>`;
+function matSummaryList(pm,tot,ls){
+  if(!pm.length)return '';
+  return `<div class="mlist">${pm.map(([id,o])=>{
+    const m=mat(id),pct=tot?Math.round(o.s/tot*100):0,cnt=ls.filter(l=>l.mid==id).length;
+    return `<div class="mitem">${cover(m)}<div class="mitem-main"><div class="mitem-top"><b>${esc(m?m.title:'削除済み')}</b><span>${hm(o.s)}</span></div><div class="mitem-bar"><i style="width:${Math.max(2,pct)}%;background:${col(m)}"></i></div><div class="mitem-sub">${pct}% ／ ${cnt}回${o.a?' ／ '+o.a+(m?m.unit:''):''}</div></div></div>`;
+  }).join('')}</div>`;
+}
+function monthSummaryList(){
+  const n=new Date(),byM={};
+  filterLogs(S.logs).forEach(l=>{
+    const d=new Date(l.t),k=d.getFullYear()+'-'+p2(d.getMonth()+1);
+    if(!byM[k])byM[k]={y:d.getFullYear(),m:d.getMonth(),s:0,days:new Set()};
+    byM[k].s+=l.sec;byM[k].days.add(dk(l.t));
+  });
+  const cur=new Date(n.getFullYear(),n.getMonth()+off,1),curK=cur.getFullYear()+'-'+p2(cur.getMonth()+1);
+  if(!byM[curK])byM[curK]={y:cur.getFullYear(),m:cur.getMonth(),s:0,days:new Set()};
+  const rows=Object.entries(byM).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,12);
+  const mx=Math.max(...rows.map(x=>x[1].s),1);
+  return `<div class="mo-list"><div class="sub" style="margin-bottom:4px">月別の学習時間（タップで表示月を切替）</div>${rows.map(([k,o])=>{
+    const oVal=(o.y-n.getFullYear())*12+(o.m-n.getMonth());
+    return `<div class="mo-row ${k===curK?'on':''}" onclick="off=${oVal};ptxt='';render()"><div class="mo-lbl">${o.y}年${o.m+1}月</div><div class="mo-bar"><i style="width:${o.s?Math.max(3,o.s/mx*100):0}%"></i></div><div class="mo-val">${o.s?hm(o.s):'0分'}</div></div>`;
+  }).join('')}</div>`;
 }
 function hours(ls){const h=Array(24).fill(0);ls.filter(l=>!l.nt).forEach(l=>{let c=l.t;const e=l.t+l.sec*1000;while(c<e){const d=new Date(c),n=new Date(c);n.setHours(d.getHours()+1,0,0,0);const k=Math.min(e,n.getTime())-c;h[d.getHours()]+=k/1000;c+=k}});return h}
 function bars(v,lb,hi){const mx=Math.max(...v,1);return `<div class="chart" style="height:110px;padding-top:4px">${v.map((x,i)=>`<div class="col"><div class="stk" style="height:${x?Math.max(4,x/mx*100):2}%;background:${hi===i?'#f59e0b':'var(--ac)'};${x?'':'opacity:.2'}"></div><div class="lb">${lb[i]}</div></div>`).join('')}</div>`}
@@ -407,9 +436,9 @@ function vStat(){
   return `<div class="card"><div class="seg"><button class="${mode==='day'?'on':''}" onclick="mode='day';off=0;if(!inR(range().a,range().b).length)jumpLatest();ptxt='';render()">日（週内）</button><button class="${mode==='week'?'on':''}" onclick="mode='week';off=0;if(!inR(range().a,range().b).length)jumpLatest();ptxt='';render()">週（7週）</button><button class="${mode==='month'?'on':''}" onclick="mode='month';off=0;if(!inR(range().a,range().b).length)jumpLatest();ptxt='';render()">月</button></div>
 <div class="nv"><button class="g" onclick="off--;ptxt='';render()">‹</button><b>${r.label}</b><button class="g" onclick="off++;ptxt='';render()" ${off>=0?'disabled style="opacity:.3"':''}>›</button></div>
 <select style="margin-bottom:8px" onchange="fmat=this.value;render()"><option value="all">すべての教材</option>${S.mats.map(m=>`<option value="${m.id}" ${fmat==m.id?'selected':''}>${esc(m.title)}</option>`).join('')}</select>
-<div class="row" style="align-items:baseline;justify-content:space-between"><div><div class="big">${hmFull(tot)}</div><div class="sub">平均 ${hm(tot/r.bk.length)} ／ 連続 ${streak()}日</div></div>${!tot&&hasAny?`<button class="g" style="flex:none;padding:6px 10px;font-size:12px" onclick="jumpLatest();render()">最新記録の期間へ移動</button>`:''}</div>
+<div class="row" style="align-items:baseline;justify-content:space-between"><div>${mode==='month'?`<div class="sub" style="margin-bottom:2px">${r.label}の合計</div>`:''}<div class="big">${hmFull(tot)}</div><div class="sub">平均 ${hm(tot/r.bk.length)} ／ 連続 ${streak()}日</div></div>${!tot&&hasAny?`<button class="g" style="flex:none;padding:6px 10px;font-size:12px" onclick="jumpLatest();render()">最新記録の期間へ移動</button>`:''}</div>
 ${stackedBars(r.bk,matOrder)}
-${matrixTable(r.bk,pm)}</div>
+${mode==='month'?monthSummaryList():matSummaryList(pm,tot,ls)}</div>
 <div class="card"><h2>時間配分</h2>${pm.length?`<div class="row" style="align-items:center;gap:14px"><div class="donut" style="background:conic-gradient(${gr})"></div><div style="flex:1;min-width:0">${pm.map(([id,o])=>{const m=mat(id);return `<div class="lg"><b style="background:${col(m)}"></b><span class="lt">${esc(m?m.title:'削除済み')}</span><em>${hm(o.s)} (${Math.round(o.s/tot*100)}%)</em></div>`}).join('')}</div></div>`:'<div class="sub">この期間の記録はありません</div>'}</div>
 ${heat()}${prog()}${fcard()}
 <div class="card"><h2>時間帯</h2>${hi>=0?`<div><b>最多時間帯: ${hi}時台</b></div>`:''}${bars(H,H.map((_,i)=>i%3==0?i:''),hi)}</div>
@@ -427,33 +456,36 @@ ptxt=`あなたは学習コーチです。以下は私の勉強記録（${r.labe
 render();const t=$('pt');if(t){t.select();try{navigator.clipboard.writeText(ptxt).then(()=>toast('コピーしました')).catch(()=>document.execCommand('copy'))}catch(e){try{document.execCommand('copy')}catch(_){}}}}
 
 /* 設定・教材管理（教材別カラー＆表紙画像・4列書棚グリッド） */
-function vMat(){
+function vAddMatForm(){
   const defCol=md.color||COL[S.mats.length%COL.length];
-  return `${vPe()}<div class="card"><h2>教材を追加</h2>
-<div class="row"><input placeholder="新しいカテゴリ・科目名" value="${esc(md.ns)}" oninput="md.ns=this.value"><button class="g" onclick="addSub()" style="margin-bottom:8px;flex:none">科目を追加</button></div>
+  return `<div style="background:var(--bg);border-radius:12px;padding:12px;margin-bottom:14px">
+<div class="row"><input placeholder="新しいカテゴリ・科目名" value="${esc(md.ns)}" oninput="md.ns=this.value" style="background:var(--card)"><button class="g" onclick="addSub()" style="margin-bottom:8px;flex:none;background:var(--card)">科目を追加</button></div>
 <div class="row" style="align-items:flex-start;gap:12px;margin-bottom:8px">
   <div style="flex:none;text-align:center">
     <div class="cv ${md.cover?'has-img':''} cv-btn" onclick="pickPhoto('new')" style="width:68px;height:90px;border-radius:8px;background:${defCol}">${md.cover?`<img src="${esc(md.cover)}" alt="">`:`<span class="spine">${esc(md.title||'表紙写真')}</span>`}</div>
     ${md.cover?`<button class="g" style="padding:2px 6px;font-size:10px;margin-top:4px" onclick="clearCover('new')">画像削除</button>`:`<div class="sub" style="margin-top:4px;font-size:10px">タップで写真</div>`}
   </div>
   <div style="flex:1">
-    <select onchange="md.sid=this.value;render()"><option value="">科目を選択</option>${S.subs.map(s=>`<option value="${s.id}" ${md.sid==s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select>
-    <input placeholder="教材名" value="${esc(md.title)}" oninput="md.title=this.value">
-    <select style="margin-bottom:6px" onchange="md.unit=this.value">${['ページ','問','章','単元','回'].map(u=>`<option ${md.unit==u?'selected':''}>${u}</option>`).join('')}</select>
+    <select style="background:var(--card)" onchange="md.sid=this.value;render()"><option value="">科目を選択</option>${S.subs.map(s=>`<option value="${s.id}" ${md.sid==s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select>
+    <input style="background:var(--card)" placeholder="教材名" value="${esc(md.title)}" oninput="md.title=this.value">
+    <select style="margin-bottom:6px;background:var(--card)" onchange="md.unit=this.value">${['ページ','問','章','単元','回'].map(u=>`<option ${md.unit==u?'selected':''}>${u}</option>`).join('')}</select>
     <div class="row" style="flex-wrap:wrap;gap:6px">${COL.map(x=>`<button type="button" class="sw ${x==defCol?'on':''}" style="background:${x}" onclick="md.color='${x}';render()"></button>`).join('')}</div>
   </div>
 </div>
 ${md.msg?`<div class="sub" style="margin-bottom:8px">${esc(md.msg)}</div>`:''}
-<button onclick="addMat()" style="width:100%">教材を追加</button></div>
-<div class="card"><h2>教材一覧（カメラアイコンで表紙登録）</h2>${vSubs()}</div>
+<button onclick="addMat()" style="width:100%">教材を追加</button></div>`;
+}
+function vMat(){
+  const openAdd=showAddMat||!S.mats.length;
+  return `${vPe()}<div class="card"><h2><span>教材一覧</span><button class="g" style="padding:5px 10px;font-size:12px" onclick="showAddMat=!showAddMat;render()">${openAdd?'閉じる':'＋ 教材を追加'}</button></h2>${openAdd?vAddMatForm():''}${vSubs()}</div>
 ${vImp()}<div class="card"><h2>バックアップ（JSON）</h2><div class="row"><button class="g" onclick="expFile()">書き出し（保存・共有）</button><button class="g" onclick="$('jf').click()">ファイルから復元</button></div><input id="jf" type="file" accept=".json,application/json" style="display:none" onchange="impFile2(this)"><div class="row" style="margin-top:8px"><button class="g" onclick="exp()">テキストをコピー</button><button class="g" onclick="imp()">貼り付けて復元</button></div><textarea id="bk" placeholder="バックアップデータの表示・貼り付け欄" style="margin-top:8px"></textarea></div>`}
 
 const EM=['📘','📖','✏️','🧪','🔢','🌏','🎵','🎨','💻','🗣️','📝','🏃'];
 function setSub(id,k,v){const s=sub(id);if(!s)return;s[k]=v;save();if(k!=='goal'&&k!=='name')render()}
 function vSubs(){if(!S.subs.length)return '<div class="sub">まだありません</div>';return S.subs.map(s=>{const ms=S.mats.filter(m=>m.sid==s.id),c=scol(s);
-return `<div class="dh" style="align-items:center;margin-top:14px"><span class="cat-tag"><i style="background:${c}"></i>${esc(s.name)}</span><span><button class="g" style="padding:3px 8px;font-size:11px" onclick="es=es==${s.id}?null:${s.id};render()">科目編集</button>${ms.length?'':` <button class="g" style="padding:3px 8px;font-size:11px" onclick="del(()=>{S.subs=S.subs.filter(x=>x.id!=${s.id});save();render()})">削除</button>`}</span></div>`
-+(es==s.id?`<div style="margin:6px 0 10px;padding:10px;background:var(--bg);border-radius:10px"><div class="row" style="align-items:center;margin-bottom:8px"><div class="sub" style="flex:none;width:70px">科目名</div><input value="${esc(s.name)}" oninput="setSub(${s.id},'name',this.value)" style="margin:0;background:var(--card)"></div><div class="row" style="align-items:center;margin-bottom:8px"><div class="sub" style="flex:none;width:70px">週目標(h)</div><input type="number" min="0" step="0.5" value="${s.goal||''}" placeholder="なし" oninput="setSub(${s.id},'goal',+this.value||0)" style="margin:0;background:var(--card)"></div><div class="row" style="flex-wrap:wrap;gap:6px">${COL.map(x=>`<button class="sw ${x==c?'on':''}" style="background:${x}" onclick="setSub(${s.id},'color','${x}')"></button>`).join('')}</div></div>`:'')
-+`<div class="gr" style="margin-top:6px">${ms.map(m=>`<div class="bk">${cover(m,'cv-btn',`onclick="pickPhoto(${m.id})"`)}<b>${esc(m.title)}</b>${pg(m)}<div class="row" style="gap:3px;margin-top:4px"><button class="g" style="padding:3px 4px;font-size:10px" onclick="pe=${m.id};render();scrollTo(0,0)">設定</button><button class="g" style="padding:3px 4px;font-size:10px" onclick="del(()=>{delMat(${m.id})})">削除</button></div></div>`).join('')}</div>`}).join('')}
+return `<div class="dh" style="align-items:center;margin-top:14px"><span class="cat-tag"><i style="background:${c}"></i>${esc(s.name)}</span><button class="g" style="padding:3px 8px;font-size:11px" onclick="es=es==${s.id}?null:${s.id};render()">科目編集</button></div>`
++(es==s.id?`<div style="margin:6px 0 10px;padding:10px;background:var(--bg);border-radius:10px"><div class="row" style="align-items:center;margin-bottom:8px"><div class="sub" style="flex:none;width:70px">科目名</div><input value="${esc(s.name)}" oninput="setSub(${s.id},'name',this.value)" style="margin:0;background:var(--card)"></div><div class="row" style="align-items:center;margin-bottom:8px"><div class="sub" style="flex:none;width:70px">週目標(h)</div><input type="number" min="0" step="0.5" value="${s.goal||''}" placeholder="なし" oninput="setSub(${s.id},'goal',+this.value||0)" style="margin:0;background:var(--card)"></div><div class="row" style="flex-wrap:wrap;gap:6px">${COL.map(x=>`<button class="sw ${x==c?'on':''}" style="background:${x}" onclick="setSub(${s.id},'color','${x}')"></button>`).join('')}</div>${ms.length?'':`<button class="g" style="width:100%;margin-top:10px;color:#e5484d;border-color:#e5484d44;padding:8px" onclick="reqDelSub(${s.id})">この科目を削除</button>`}</div>`:'')
++`<div class="gr" style="margin-top:6px">${ms.map(m=>`<div class="bk">${cover(m,'cv-btn',`onclick="pickPhoto(${m.id})"`)}<b>${esc(m.title)}</b>${pg(m)}<button class="g" style="width:100%;padding:4px;font-size:11px;margin-top:4px" onclick="pe=${m.id};render();scrollTo(0,0)">設定</button></div>`).join('')}</div>`}).join('')}
 
 /* CSV・表インポート */
 const GK=[['d','日付',/日付|日|date|day/i],['s','開始時刻',/開始|start/i],['m','教材',/教材|参考書|タイトル|名称|material|title|name/i],['t','時間',/時間|分|duration|time/i],['a','量',/量|ページ|問|amount|page/i],['n','メモ',/メモ|コメント|memo|comment|note/i],['c','科目',/カテゴリ|科目|category|subject/i]];
@@ -502,7 +534,7 @@ function vPe(){const m=pe&&mat(pe);if(!m)return '';const mc=col(m);return `<div 
 </div>
 <div class="row"><div><div class="sub">開始位置</div><input type="number" min="0" value="${m.from??''}" placeholder="1" oninput="setM('from',this.value)"></div><div><div class="sub">終了位置（全体量）</div><input type="number" min="1" value="${m.total??''}" oninput="setM('total',this.value)"></div></div>
 <div class="row"><div><div class="sub">目標周回数</div><input type="number" min="1" step="1" value="${m.laps??1}" oninput="setM('laps',this.value)"></div><div><div class="sub">目標期限</div><input type="date" value="${m.dl||''}" oninput="setM('dl',this.value)"></div></div>
-<button onclick="pe=null;render()" style="width:100%">完了</button></div>`}
+<button onclick="pe=null;render()" style="width:100%">完了</button><button class="g" style="width:100%;margin-top:8px;color:#e5484d;border-color:#e5484d44" onclick="reqDelMat(${m.id})">この教材を削除</button></div>`}
 
 function prog(){const L=S.mats.filter(m=>m.total).map(m=>[m,pgi(m)]).filter(x=>x[1]);
 if(!L.length)return '';
@@ -537,13 +569,19 @@ const s=streak();if([7,14,30,50,100,200,365].includes(s)&&S.cel.s!==s+'|'+dkn){S
 if(L.length){save();celebrate(L[0][0],L.map(x=>x[1]).join('<br>'))}}
 function celebrate(e,t){const c=$('cel');c.innerHTML=`<div class="cb"><div style="font-size:44px">${e}</div><b>${t}</b></div>`+Array.from({length:16},(_,i)=>`<i style="left:${Math.random()*100}%;animation-delay:${Math.random()*.6}s">${['🎉','✨','⭐','🎊'][i%4]}</i>`).join('');c.style.display='block';clearTimeout(ct);ct=setTimeout(()=>c.style.display='none',3500)}
 function del(f){us=JSON.stringify({subs:S.subs,mats:S.mats,logs:S.logs});f();toast('削除しました','元に戻す')}
+function askDel(title,msg,fn){cfmFn=fn;const c=$('cfm');c.innerHTML=`<div class="cm-box"><div class="cm-t">${esc(title)}</div><div class="cm-m">${esc(msg)}</div><div class="row"><button class="g" onclick="closeCfm()">キャンセル</button><button class="r" onclick="doCfm()">削除する</button></div></div>`;c.style.display='flex'}
+function closeCfm(){cfmFn=null;$('cfm').style.display='none'}
+function doCfm(){const f=cfmFn;closeCfm();if(f)del(f)}
+function reqDelLog(id){const l=S.logs.find(x=>x.id==id);if(!l)return;const m=mat(l.mid);askDel('記録を削除しますか？',`${dk(l.t)}「${m?m.title:'削除済み'}」（${hm(l.sec)}）を削除します。`,()=>{S.logs=S.logs.filter(x=>x.id!=id);ed=null;save();render()})}
+function reqDelMat(id){const m=mat(id);if(!m)return;const cnt=S.logs.filter(l=>l.mid==id).length;askDel('教材を削除しますか？',`「${m.title}」${cnt?`と関連する学習記録${cnt}件`:''}を削除します。`,()=>delMat(id))}
+function reqDelSub(id){const s=sub(id);if(!s)return;askDel('科目を削除しますか？',`「${s.name}」を削除します。`,()=>{if(es==id)es=null;S.subs=S.subs.filter(x=>x.id!=id);save();render()})}
 function toast(m,a){clearTimeout(ut);const t=$('toast');t.innerHTML=`${m}${a?` <button onclick="undo()">${a}</button>`:''}`;t.style.display='flex';ut=setTimeout(()=>t.style.display='none',6000)}
 function undo(){if(!us)return;const o=JSON.parse(us);S.subs=o.subs;S.mats=o.mats;S.logs=o.logs;us=null;save();$('toast').style.display='none';render()}
 function addSub(){const n=md.ns.trim();if(!n)return;const s={id:uid(),name:n,color:COL[S.subs.length%COL.length],icon:'📘'};S.subs.push(s);md.sid=s.id;md.ns='';save();render()}
 function addMat(){if(!md.title.trim()){md.msg='教材名を入力してください';render();return}
 if(!md.sid){if(!S.subs.length)S.subs.push({id:uid(),name:'教員免許認定試験',color:COL[0],icon:'📘'});md.sid=S.subs[0].id}
 const nm={id:uid(),sid:+md.sid,title:md.title.trim(),unit:md.unit,cover:md.cover,color:md.color||COL[S.mats.length%COL.length]};
-S.mats.push(nm);if(!S.sel)S.sel=nm.id;md={sid:md.sid,title:'',unit:md.unit,cover:'',color:'',msg:'',ns:''};save();toast('教材を追加しました');render()}
+S.mats.push(nm);if(!S.sel)S.sel=nm.id;md={sid:md.sid,title:'',unit:md.unit,cover:'',color:'',msg:'',ns:''};showAddMat=false;save();toast('教材を追加しました');render()}
 function delMat(id){if(pe==id)pe=null;S.mats=S.mats.filter(m=>m.id!=id);S.logs=S.logs.filter(l=>l.mid!=id);if(S.timer&&S.timer.mid==id){S.timer=null;unwake()}if(S.sel==id)S.sel=S.mats[0]?S.mats[0].id:null;save();render()}
 
 /* ハイブリッドJSONバックアップ */
