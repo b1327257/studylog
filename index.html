@@ -23,10 +23,11 @@ body{background:var(--bg);color:var(--tx);font-family:-apple-system,"Hiragino Sa
 .brand-icon svg{width:19px;height:19px;stroke:currentColor;stroke-width:2.05;stroke-linecap:round;stroke-linejoin:round;fill:none}
 .hdr-title{font-size:20px;font-weight:700;letter-spacing:-.02em}
 .card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;margin-bottom:12px}
-h2{font-size:14px;color:var(--sub);margin:0 0 10px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+h2{font-size:14px;color:var(--sub);margin:0 0 10px;font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:8px}
 button,select,input,textarea{font:inherit;color:var(--tx)}
 button{border:0;border-radius:12px;padding:12px 16px;background:var(--ac);color:#fff;font-weight:600;cursor:pointer}
 button.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}button.r{background:#e5484d;color:#fff}
+button:disabled{opacity:.45;cursor:default}
 input,select,textarea{width:100%;padding:11px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);margin-bottom:8px}
 .clock{font-size:50px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;margin:4px 0 12px}
 .row{display:flex;gap:8px}.row>*{flex:1;min-width:0}
@@ -62,15 +63,22 @@ textarea{min-height:110px;font-size:12px}
 #mini{position:fixed;top:0;left:0;right:0;z-index:12;display:none;align-items:center;gap:8px;background:var(--ac);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 8px) 14px 8px}
 #mini>div{flex:1;min-width:0}#mini b{display:block;font-size:12px;opacity:.9;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}#mini span{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}#mini button{background:#ffffff33;padding:8px 12px}
 .gr{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.bk{text-align:left;font-size:11px;min-width:0;display:flex;flex-direction:column}
+.bk{text-align:left;font-size:11px;min-width:0;display:flex;flex-direction:column;position:relative}
+.bk.arc{opacity:.68}
 .bk .cv{width:100%;height:auto;aspect-ratio:3/4;border-radius:7px;margin-bottom:5px}
 .bk .cv .spine{font-size:11px;padding:6px;-webkit-line-clamp:4}
 .bk b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.25;min-height:2.5em;font-size:11px}
+.shelf-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:6px}
 .shelf{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
-.shelf-it{background:var(--bg);border:2px solid transparent;border-radius:10px;padding:6px;cursor:pointer;text-align:left;display:flex;flex-direction:column;min-width:0;transition:border-color .15s}
+.shelf.locked .shelf-it{cursor:default;opacity:.75}
+.shelf.locked .shelf-it.on{opacity:1}
+.shelf-it{background:var(--bg);border:2px solid transparent;border-radius:10px;padding:6px;cursor:pointer;text-align:left;display:flex;flex-direction:column;min-width:0;transition:border-color .15s;position:relative}
 .shelf-it.on{border-color:var(--ac);background:var(--card);box-shadow:0 2px 8px #00000012}
 .shelf-it .cv{width:100%;height:auto;aspect-ratio:3/4;margin-bottom:4px;border-radius:5px}
 .shelf-it span{font-size:10px;font-weight:600;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--tx)}
+.fav-pin{position:absolute;top:4px;right:4px;z-index:2;width:22px;height:22px;border-radius:50%;background:#00000070;color:#ffffffb3;border:0;padding:0;font-size:12px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(2px)}
+.fav-pin.on{color:#fbbf24;background:#0000008c}
+.arc-tag{display:inline-block;font-size:9px;padding:1px 5px;border-radius:4px;background:var(--bd);color:var(--sub);font-weight:600;vertical-align:middle}
 .sw{width:26px;height:26px;padding:0;border-radius:50%;border:2px solid transparent;flex:none}
 .sw.on{border-color:var(--tx);transform:scale(1.1)}
 .ring{width:88px;height:88px;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center;font-weight:700;background:var(--bd)}.ring:before{content:"";position:absolute;inset:9px;border-radius:50%;background:var(--card)}.ring span{position:relative;font-size:15px}
@@ -101,6 +109,48 @@ textarea{min-height:110px;font-size:12px}
 #cfm .cm-box{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:18px;width:100%;max-width:340px;box-shadow:0 10px 30px #0004}
 #cfm .cm-t{font-size:15px;font-weight:700;margin-bottom:6px}
 #cfm .cm-m{font-size:13px;color:var(--sub);line-height:1.5;margin-bottom:14px}
+.hc.edit{border:2px dashed var(--ac);border-radius:18px;padding:6px 6px 0;margin-bottom:12px}.hc.edit>.card{pointer-events:none;opacity:.55;margin-bottom:6px}.hc-bar{display:flex;justify-content:space-between;align-items:center;padding:2px 4px 6px;font-size:13px}.hc-bar span{display:flex;gap:6px}.hc-bar button{padding:6px 16px;font-size:15px;line-height:1}.hc-bar button:disabled{opacity:.3}
+.pt-card{position:relative;overflow:hidden;background:linear-gradient(145deg,var(--card) 0%,var(--bg) 100%)}
+.pt-wrap{display:flex;align-items:center;gap:12px}
+.pt-stage{width:96px;height:96px;flex:0 0 96px;border-radius:16px;background:#d7e3b5 linear-gradient(#0000000b 1px,#0000 1px),linear-gradient(90deg,#0000000b 1px,#0000 1px);background-size:100% 100%,5px 5px,5px 5px;background-position:0 0,8px 8px,8px 8px;border:4px solid #8a9470;box-shadow:inset 0 0 0 2px #0000001a,0 2px 0 #0002;image-rendering:pixelated;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;user-select:none}
+.pt-stage svg{width:80px;height:80px;overflow:visible}
+.pt-float{animation:ptBob 1.2s steps(1) infinite}
+.pt-droop{animation:ptDroop 2.4s steps(1) infinite}
+@keyframes ptDroop{0%{transform:translateY(0)}50%{transform:translateY(2px)}}
+.rm{position:relative;width:100%;aspect-ratio:96/56;border-radius:14px;overflow:hidden;border:4px solid #8a7a5a;box-shadow:inset 0 0 0 2px #0000001a,0 2px 0 #0002;background:#efe6d2;image-rendering:pixelated}
+.rm-bg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.rm-pet{position:absolute;width:16.667%;aspect-ratio:1;cursor:pointer;z-index:2;-webkit-tap-highlight-color:transparent}
+.rm-bub{position:absolute;bottom:100%;margin-bottom:5px;left:0;width:max-content;max-width:190px;background:#fff;color:#2b3320;border:2px solid #2b3320;border-radius:8px;padding:5px 8px;font-size:11.5px;line-height:1.45;font-weight:600;box-shadow:0 2px 0 #0003;z-index:3;transition:opacity .3s ease,transform .3s ease}
+.rm-bub.hide{opacity:0;pointer-events:none;transform:translateY(3px)}
+.rm-bub::after{content:"";position:absolute;top:100%;left:var(--tx,50%);width:7px;height:7px;background:#fff;border:solid #2b3320;border-width:0 2px 2px 0;transform:translate(-50%,-4px) rotate(45deg)}
+.rm-bub.dn{bottom:auto;top:100%;margin-bottom:0;margin-top:5px}
+.rm-bub.dn::after{top:auto;bottom:100%;border-width:2px 0 0 2px;transform:translate(-50%,4px) rotate(45deg)}
+.rm-pet svg{width:100%;height:100%;display:block;overflow:visible}
+.pt-walk{animation:ptFocus .36s steps(1) infinite!important}
+.pt-run{animation:ptFocus .5s steps(1) infinite}
+.pt-evo{animation:ptEvo .75s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes ptBob{0%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.pt-eye{transform-box:fill-box;transform-origin:center;animation:ptBlink 4s linear infinite}
+@keyframes ptBlink{0%,92%{transform:scaleY(1)}94%,98%{transform:scaleY(.15)}100%{transform:scaleY(1)}}
+@keyframes ptFocus{0%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes ptEvo{0%{transform:scale(.4) rotate(-8deg);opacity:.2}60%{transform:scale(1.15) rotate(4deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+.pt-info{flex:1;min-width:0}
+.pt-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:5px}
+.pt-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--bg);border:1px solid var(--bd)}
+.pt-meta{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--sub);margin-top:6px;font-variant-numeric:tabular-nums}
+.pt-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.pt-chip{font-size:10px;padding:2px 7px;border-radius:999px;background:var(--bg);border:1px solid var(--bd);color:var(--sub)}
+.pt-chip.on{color:var(--tx);border-color:var(--ac);font-weight:600}
+#pmod{position:fixed;inset:0;z-index:35;background:#0006;display:none;align-items:center;justify-content:center;padding:16px}
+#pmod .pm-box{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:16px;width:100%;max-width:440px;max-height:88vh;overflow-y:auto;box-shadow:0 12px 34px #0005}
+.pm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.pm-st{background:var(--bg);border:2px solid transparent;border-radius:12px;padding:8px 6px;text-align:center;cursor:pointer;font-size:11px}
+.pm-st.on{border-color:var(--ac);background:var(--card)}
+.pm-st.lk{opacity:.42;cursor:default}
+.pm-st svg{width:48px;height:48px;margin:0 auto 4px;display:block;background:#d7e3b5;border-radius:6px;padding:2px;box-sizing:content-box}
+.pm-acc{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.pm-ac-it{background:var(--bg);border:1px solid var(--bd);border-radius:9px;padding:6px 8px;font-size:11px;display:flex;align-items:center;gap:6px}
+.pm-ac-it.lk{opacity:.4}
 .cat-tag{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700}
 .cat-tag i{width:8px;height:16px;border-radius:3px;display:inline-block}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(64px + env(safe-area-inset-bottom,0px));z-index:15;display:none;align-items:center;gap:10px;background:var(--tx);color:var(--bg);padding:10px 14px;border-radius:12px;font-size:14px;white-space:nowrap}#toast button{padding:4px 10px;background:var(--ac);color:#fff}
@@ -119,14 +169,15 @@ textarea{min-height:110px;font-size:12px}
   </div>
   <div class="hdr-title">勉強ログ</div>
 </header>
-<div id="v"></div><div id="toast"></div><div id="cel"></div><div id="cfm" onclick="if(event.target===this)closeCfm()"></div>
+<div id="v"></div><div id="toast"></div><div id="cel"></div><div id="pmod" onclick="if(event.target===this)closePetModal()"></div><div id="cfm" onclick="if(event.target===this)closeCfm()"></div>
 <input id="ph" type="file" accept="image/*" style="display:none" onchange="onPhoto(this)">
 <nav><button data-t="home">ホーム</button><button data-t="log">記録</button><button data-t="stat">振り返り</button><button data-t="mat">設定</button></nav>
 <script>
 const K='studylog2',DB_NAME='StudyLogDB',DB_STORE='state';
 const COL=['#ef4444','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899','#06b6d4','#f97316','#6366f1','#14b8a6'],DW='日月火水木金土';
-let S={subs:[],mats:[],logs:[],goal:14,dgoal:60,minDay:15,timer:null,sel:null,cel:{}},dbRef=null,photoTarget=null;
-let tab='home',mode='week',off=0,ed=null,pu=0,md={sid:'',title:'',unit:'ページ',cover:'',color:'',msg:'',ns:''},wl,ptxt='',pe=null,es=null,us=null,ut,ct,fmat='all',showAddMat=false,cfmFn=null;
+let S={subs:[],mats:[],logs:[],goal:14,dgoal:60,minDay:15,timer:null,sel:null,cel:{},pet:{claimedLv:0,viewLv:0},tmrFavOnly:true},dbRef=null,photoTarget=null;
+let tab='home',mode='week',off=0,ed=null,pu=0,md={sid:'',title:'',unit:'ページ',cover:'',color:'',fav:false,msg:'',ns:''},wl,ptxt='',pe=null,es=null,us=null,ut,ct,fmat='all',showAddMat=false,showArcMat=false,showArcProg=false,cfmFn=null;
+let petLine='',petAnim=false,petTmr=null,bubVisible=true,bubHideTmr=null;
 let im={text:'',rows:null,map:{},unit:'60',out:null,done:''};
 
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -135,6 +186,36 @@ const hm=s=>{const m=Math.round(s/60);return m>=60?`${m/60|0}時間${m%60?m%60+'
 const hmFull=s=>{const m=Math.round(s/60);return m>=60?`${m/60|0}時間${p2(m%60)}分`:`${m}分`};
 const dk=t=>{const d=new Date(t);return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())},tm=t=>{const d=new Date(t);return p2(d.getHours())+':'+p2(d.getMinutes())};
 const mat=id=>S.mats.find(m=>m.id==id),sub=id=>S.subs.find(s=>s.id==id);
+const activeMats=()=>S.mats.filter(m=>!m.arc);
+const favMats=()=>S.mats.filter(m=>!m.arc&&m.fav);
+const arcMats=()=>S.mats.filter(m=>m.arc);
+
+/* 教材を「★お気に入り（最近使った順）→ その他（最近使った順）」に整列 */
+function sortedActiveIds(onlyFav=false){
+  const pool=onlyFav?favMats():activeMats();
+  const poolIds=new Set(pool.map(m=>m.id));
+  const recent=[];
+  [...S.logs].sort((a,b)=>b.t-a.t).forEach(l=>{if(poolIds.has(l.mid)&&!recent.includes(l.mid))recent.push(l.mid)});
+  pool.forEach(m=>{if(!recent.includes(m.id))recent.push(m.id)});
+  const favs=recent.filter(id=>{const m=mat(id);return m&&m.fav});
+  const rest=recent.filter(id=>{const m=mat(id);return m&&!m.fav});
+  return [...favs,...rest];
+}
+function ensureValidSel(){
+  if(S.timer&&mat(S.timer.mid)){S.sel=S.timer.mid;return S.sel}
+  const cur=mat(S.sel);
+  const favIds=sortedActiveIds(true);
+  const allIds=sortedActiveIds(false);
+  if(S.tmrFavOnly&&favIds.length){
+    if(!cur||cur.arc||!cur.fav)S.sel=favIds[0];
+  }else if(allIds.length){
+    if(!cur||cur.arc)S.sel=allIds[0];
+  }else{
+    S.sel=S.mats[0]?S.mats[0].id:null;
+  }
+  return S.sel;
+}
+
 /* 教材ごとに固有カラーを自動割当（個別設定 > 教材インデックス順パレット） */
 const col=m=>{
   if(!m)return COL[0];
@@ -169,8 +250,15 @@ function ensureColors(){
   if(!Array.isArray(S.mats))S.mats=[];
   if(!Array.isArray(S.subs))S.subs=[];
   if(!Array.isArray(S.logs))S.logs=[];
-  S.mats.forEach((m,i)=>{if(!m.color)m.color=COL[i%COL.length]});
+  S.mats.forEach((m,i)=>{
+    if(!m.color)m.color=COL[i%COL.length];
+    if(m.fav==null)m.fav=false;
+    if(m.arc==null)m.arc=false;
+  });
   S.subs.forEach((s,i)=>{if(!s.color)s.color=COL[i%COL.length]});
+  if(S.tmrFavOnly==null)S.tmrFavOnly=true;
+  if(!S.pet||typeof S.pet!=='object'){const h0=sm(S.logs)/3600;S.pet={claimedLv:h0>=10?1:calcPetLv(h0),viewLv:0}}
+  ensureValidSel();
 }
 async function initStorage(){
   let legacy=null;
@@ -194,6 +282,7 @@ async function initStorage(){
   ensureColors();
   save();
   if(S.timer&&S.timer.at)wake();
+  showBubble(4500);
   render();
 }
 function save(){
@@ -217,9 +306,35 @@ function cover(m,cls='',act=''){
   const has=m&&m.cover,c=col(m),t=m&&m.title?m.title:'';
   return `<div class="cv ${has?'has-img':''} ${cls}" ${act} style="background:${c}">${has?`<img src="${esc(m.cover)}" alt="" onerror="this.remove()">`:`<span class="spine">${esc(t.slice(0,12)||ico(m))}</span>`}</div>`;
 }
-function opts(sel){return S.subs.map(s=>{const ms=S.mats.filter(m=>m.sid==s.id);return ms.length?`<optgroup label="${s.icon||'📘'} ${esc(s.name)}">${ms.map(m=>`<option value="${m.id}" ${m.id==sel?'selected':''}>${esc(m.title)}</option>`).join('')}</optgroup>`:''}).join('')}
 const wake=()=>{try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(l=>wl=l).catch(()=>{})}catch(e){}};
 const unwake=()=>{try{wl&&wl.release();wl=null}catch(e){}};
+
+/* お気に入り＆アーカイブ切り替え */
+function toggleFav(id,ev){
+  if(ev)ev.stopPropagation();
+  const m=mat(id);if(!m)return;
+  m.fav=!m.fav;
+  if(m.fav&&!S.timer)S.sel=m.id;
+  ensureValidSel();
+  save();
+  render();
+}
+function toggleArc(id,ev){
+  if(ev)ev.stopPropagation();
+  const m=mat(id);if(!m)return;
+  if(S.timer&&S.timer.mid==id){toast('タイマー計測中の教材はアーカイブできません');return}
+  m.arc=!m.arc;
+  ensureValidSel();
+  save();
+  toast(m.arc?`「${m.title}」をアーカイブしました`:`「${m.title}」のアーカイブを解除しました`);
+  render();
+}
+function setTmrFavMode(v){
+  S.tmrFavOnly=Boolean(v);
+  ensureValidSel();
+  save();
+  render();
+}
 
 /* 画像登録・リサイズ圧縮（長辺600px / JPEG 0.78） */
 function pickPhoto(target){
@@ -255,15 +370,39 @@ function clearCover(target){
 }
 
 /* タイマー */
-function toggle(){const t=S.timer;if(!t){const mid=S.sel||(S.mats[0]&&S.mats[0].id);if(!mid)return;S.sel=mid;S.timer={mid,acc:0,at:Date.now(),st:Date.now()};wake()}
-else if(t.at){t.acc=el();t.at=null;unwake()}else{t.at=Date.now();wake()}save();render()}
-function finish(){const t=S.timer,s=Math.round(el());S.timer=null;unwake();if(s>=1){ed={id:null,fin:1,mid:t.mid,t:t.st,sec:s,amt:'',fr:'',to:'',focus:0,memo:''};tab='log'}save();render()}
+function toggle(){
+  const t=S.timer;
+  if(!t){
+    const mid=ensureValidSel();
+    if(!mid)return;
+    S.sel=mid;
+    S.timer={mid,acc:0,at:Date.now(),st:Date.now()};
+    wake();
+  }else if(t.at){
+    t.acc=el();t.at=null;unwake();
+  }else{
+    t.at=Date.now();wake();
+  }
+  petLine='';
+  showBubble(4500);
+  save();render();
+}
+function finish(){
+  const t=S.timer,s=Math.round(el());
+  S.timer=null;unwake();
+  petLine=pickL(['おつかれさま！ぽかぽかするよ。',`${hm(s)}もがんばったね。おつかれさま！`,'ふぅ…ぼくまで満たされたよ。','ありがとう！元気がわいてきたよ。']);
+  showBubble(5000);
+  if(s>=1){ed={id:null,fin:1,mid:t.mid,t:t.st,sec:s,amt:'',fr:'',to:'',focus:0,memo:''};tab='log'}
+  save();render();
+}
 function tick(){if($('clock'))$('clock').textContent=clk(el());if($('mclk'))$('mclk').textContent=clk(el());
 if($('gp')){const w=weekTotal(),g=S.goal*3600,td=todayTotal(),dg=DG()*60,mn=Math.max(1,MN())*60,p=Math.min(100,w/g*100);
 $('rg').style.background=`conic-gradient(${p>=100?'#059669':'var(--ac)'} ${p}%,var(--bd) 0)`;$('gt').textContent=hmFull(w);$('gr').textContent=Math.round(w/g*100)+'%';
 if($('kpi_td'))$('kpi_td').textContent=hm(td);
 if($('kpi_mo'))$('kpi_mo').textContent=Math.round(monthTotal()/3600)+'時間';
 if($('kpi_al'))$('kpi_al').textContent=Math.round(allTotal()/3600)+'時間';
+if($('pt_food')){const fl=foodLevel();$('pt_ft').textContent=Math.round(fl)+'%';$('pt_food').style.width=fl+'%'}
+if($('pt_hrs')){const ph=allTotal()/3600;$('pt_hrs').textContent=ph.toFixed(1)+' / 500時間';if($('pt_bar'))$('pt_bar').style.width=Math.min(100,ph/5)+'%'}
 $('gp').style.width=(dg?Math.min(100,td/dg*100):0)+'%';$('dg').textContent=dg?`${hm(td)} / ${hm(dg)}`:'未設定';
 $('st_num').textContent=streak();
 $('ml').textContent=td>=mn?'✓ 今日の連続日数キープ済み':`あと${Math.ceil((mn-td)/60)}分で連続キープ`}
@@ -275,32 +414,486 @@ function setDGoal(v){S.dgoal=Math.max(0,+v||0);save();tick()}
 function setMinDay(v){S.minDay=Math.max(0,+v||0);save();tick()}
 
 function selectMat(id){if(S.timer)return;S.sel=id;save();render()}
-function shelfHTML(selId,onSelectFn){
-  if(!S.mats.length)return '<div class="sub" style="margin-bottom:10px">「設定」タブから教材を追加してください</div>';
-  const order=[];
-  [...S.logs].sort((a,b)=>b.t-a.t).forEach(l=>{if(mat(l.mid)&&!order.includes(l.mid))order.push(l.mid)});
-  S.mats.forEach(m=>{if(!order.includes(m.id))order.push(m.id)});
-  return `<div class="shelf">${order.map(id=>{const m=mat(id);return `<div class="shelf-it ${selId==id?'on':''}" onclick="${onSelectFn}(${id})">${cover(m)}<span>${esc(m.title)}</span></div>`}).join('')}</div>`;
+
+/* タイマー用・記録用の教材棚レンダリング */
+function timerShelfHTML(curId){
+  const act=activeMats();
+  if(!act.length){
+    return `<div class="sub" style="margin-bottom:10px">${S.mats.length?'進行中の教材がありません（「設定」タブで追加またはアーカイブ解除できます）':'「設定」タブから教材を追加してください'}</div>`;
+  }
+  const favs=favMats();
+  const useFav=Boolean(S.tmrFavOnly&&favs.length);
+  let order=sortedActiveIds(useFav);
+  if(curId&&mat(curId)&&!order.includes(curId))order=[curId,...order];
+  const locked=Boolean(S.timer);
+  const hdr=`<div class="shelf-bar">
+    <span class="sub">${locked?'計測中（教材固定）':useFav?`★ お気に入り教材（${favs.length}冊）`:`進行中の教材（${act.length}冊）`}</span>
+    ${favs.length?`<button type="button" class="g" style="padding:3px 9px;font-size:11px;border-radius:8px" onclick="setTmrFavMode(${!useFav})">${useFav?`すべて表示（${act.length}）`:`★ お気に入りのみ（${favs.length}）`}</button>`:`<span class="sub" style="font-size:11px">★でお気に入り登録</span>`}
+  </div>`;
+  return hdr+`<div class="shelf ${locked?'locked':''}">${order.map(id=>{
+    const m=mat(id);if(!m)return '';
+    return `<div class="shelf-it ${curId==id?'on':''}" onclick="selectMat(${id})">
+      <button type="button" class="fav-pin ${m.fav?'on':''}" title="お気に入り" onclick="toggleFav(${id},event)">${m.fav?'★':'☆'}</button>
+      ${cover(m)}
+      <span>${esc(m.title)}</span>
+    </div>`;
+  }).join('')}</div>`;
+}
+function logShelfHTML(selId,onSelectFn){
+  const act=activeMats();
+  if(!act.length&&!selId){
+    return `<div class="sub" style="margin-bottom:10px">${S.mats.length?'進行中の教材がありません（「設定」タブで追加またはアーカイブ解除できます）':'「設定」タブから教材を追加してください'}</div>`;
+  }
+  let order=sortedActiveIds(false);
+  if(selId&&mat(selId)&&!order.includes(selId))order=[selId,...order];
+  return `<div class="shelf">${order.map(id=>{
+    const m=mat(id);if(!m)return '';
+    return `<div class="shelf-it ${selId==id?'on':''}" onclick="${onSelectFn}(${id})">
+      <button type="button" class="fav-pin ${m.fav?'on':''}" title="お気に入り" onclick="toggleFav(${id},event)">${m.fav?'★':'☆'}</button>
+      ${cover(m)}
+      <span>${esc(m.title)}${m.arc?' <i class="arc-tag">完了</i>':''}</span>
+    </div>`;
+  }).join('')}</div>`;
 }
 
+/* 知識の相棒（500時間完成・6段階進化＋小節目の装飾＋会話＋吹き出し自動フェードアウト） */
+const PET_STAGES=[
+  {lv:1,min:0,next:10,name:'ちいさなたまご',desc:'知識の光を宿したたまご'},
+  {lv:2,min:10,next:50,name:'ことばのしずく',desc:'生まれたての好奇心あふれる相棒'},
+  {lv:3,min:50,next:150,name:'まなびの幼精',desc:'よく使う教材の色と知識をまとった姿'},
+  {lv:4,min:150,next:300,name:'ちえの羽精',desc:'翼とマントを授かり知識の海を駆ける姿'},
+  {lv:5,min:300,next:500,name:'ほしよみの賢精',desc:'知恵の紋章と星々を従えた熟練の姿'},
+  {lv:6,min:500,next:500,name:'叡智の大精霊',desc:'500時間の研鑽が結晶化した完成形'}
+];
+const PET_ACCS=[
+  {h:25,icon:'🌱',name:'若葉のしおり',desc:'25時間達成'},
+  {h:50,icon:'📘',name:'知恵のミニ本',desc:'50時間達成'},
+  {h:75,icon:'🪶',name:'ひらめきの羽根ペン',desc:'75時間達成'},
+  {h:100,icon:'✨',name:'百時間の星粒',desc:'100時間達成'},
+  {h:125,icon:'🍀',name:'四つ葉のチャーム',desc:'125時間達成'},
+  {h:150,icon:'🧣',name:'探究者のマント',desc:'150時間達成'},
+  {h:200,icon:'🔮',name:'記憶のオーブ',desc:'200時間達成'},
+  {h:250,icon:'🌙',name:'月光のランタン',desc:'250時間達成'},
+  {h:300,icon:'🔯',name:'知恵の紋章',desc:'300時間達成'},
+  {h:350,icon:'🪐',name:'惑星のリング',desc:'350時間達成'},
+  {h:400,icon:'🌟',name:'大賢者の星冠',desc:'400時間達成'},
+  {h:500,icon:'👑',name:'完成の王冠と光書',desc:'500時間達成'}
+];
+function calcPetLv(h){
+  for(let i=PET_STAGES.length-1;i>=0;i--){if(h>=PET_STAGES[i].min)return PET_STAGES[i].lv}
+  return 1;
+}
+function topMatInfo(){
+  if(!S.mats.length)return{color:'#059669',title:''};
+  const byM={};S.logs.forEach(l=>byM[l.mid]=(byM[l.mid]||0)+l.sec);
+  let best=S.mats[0],max=-1;
+  S.mats.forEach(m=>{const s=byM[m.id]||0;if(s>max){max=s;best=m}});
+  return{color:col(best),title:best.title};
+}
+function petSleeping(){
+  if(S.timer)return false;
+  if(!S.logs.length)return false;
+  const last=Math.max(...S.logs.map(l=>l.t));
+  return (Date.now()-last)>3*864e5;
+}
+const MOOD_LABEL={happy:'ほくほく',normal:'ふつう',hungry:'おなかぺこぺこ',weak:'ぐったり'};
+const TYPE_LABEL={morning:'朝型',day:'昼型',night:'夜型'},TYPE_ICON={morning:'🌅',day:'☀️',night:'🌙'};
+function foodLevel(){
+  if(!S.logs.length&&!S.timer)return 55;
+  const now=Date.now();let v=0;
+  S.logs.forEach(l=>{const age=Math.max(0,(now-(l.t+l.sec*1000))/36e5);if(age<72)v+=l.sec/60*(1-age/72)*100/60});
+  if(S.timer)v+=el()/60*100/60;
+  return Math.min(100,v);
+}
+function petMood(){const f=foodLevel();return f>=70?'happy':f>=40?'normal':f>=15?'hungry':'weak'}
+function petType(){
+  const cut=Date.now()-60*864e5;let ls=S.logs.filter(l=>l.t>=cut);if(ls.length<3)ls=S.logs;if(ls.length<3)return null;
+  const b={morning:0,day:0,night:0};
+  ls.forEach(l=>{const hr=new Date(l.t).getHours();b[hr>=5&&hr<12?'morning':hr>=12&&hr<19?'day':'night']+=l.sec});
+  const r=Object.entries(b).sort((x,y)=>y[1]-x[1]);return r[0][1]>0?r[0][0]:null;
+}
+function topSubInfo(){
+  const by={};
+  S.logs.forEach(l=>{const m=mat(l.mid);if(!m)return;const s=sub(m.sid),k=s?'s'+s.id:'m'+m.id;(by[k]=by[k]||{sec:0,name:s?s.name:m.title}).sec+=l.sec});
+  const a=Object.values(by).sort((x,y)=>y[1].sec-x[1].sec);return a[0]||null;
+}
+const subCat=n=>/教|心理|免許|資格|福祉|看護|医/.test(n)?'edu':/社|歴|史|地|公民|政|経|法/.test(n)?'soc':/数|算|理|化|物|生物|情報|統計|科学|math|sci/i.test(n)?'sci':/国|語|英|文|読|言|古|漢|eng/i.test(n)?'lang':null;
+function petOpt(){const sj=topSubInfo();return{mood:petMood(),type:petType(),cat:sj?subCat(sj.name):null}}
+const pickL=a=>a[Math.floor(Math.random()*a.length)];
+const STAGE_CLAIM=['','','パリン！…あれ、ぼく、うまれたの？はじめまして！','からだがむずむずする…わあ、耳がはえた！','背中がむずむず…羽が広がったよ！ほら、飛べそう！','星のかけらが集まってくる…これ、ぼくの力なの？','たくさんの光が集まって…ぼく、ここまで来られたんだ。ありがとう！'];
+
+function showBubble(ms=4500){
+  bubVisible=true;
+  const b=$('pt_bub');
+  if(b)b.classList.remove('hide');
+  clearTimeout(bubHideTmr);
+  bubHideTmr=setTimeout(()=>{
+    bubVisible=false;
+    const b2=$('pt_bub');
+    if(b2)b2.classList.add('hide');
+  },ms);
+}
+function getPetLines(){
+  const h=allTotal()/3600,realLv=calcPetLv(h);
+  const clv=(S.pet&&S.pet.claimedLv)||1;
+  if(clv<realLv)return['なんだかからだが熱いよ…！なにかが起こりそう！','むずむず…むずむずするよ…！','ねえ、ぼくのからだ、光ってない…？'];
+  const t=S.timer,run=t&&t.at,td=todayTotal(),st=streak(),hr=new Date().getHours(),mood=petMood();
+  const lastLog=S.logs.length?[...S.logs].sort((a,b)=>b.t-a.t)[0]:null;
+  const lastMat=lastLog&&mat(lastLog.mid)?mat(lastLog.mid).title:'';
+  const curMat=t&&mat(t.mid)?mat(t.mid).title:'';
+  const sjI=topSubInfo(),sj=sjI?sjI.name:'',type=petType();
+  const unlocked=PET_ACCS.filter(a=>h>=a.h),acc=unlocked[unlocked.length-1];
+  if(run){
+    const p=[
+      'しーっ…いま、いいところだよね。',
+      'ペンの音、すき。もっと聞いていたいな。',
+      'わあ、すごい集中力…！まばたきも忘れてたよ。',
+      '見てると、ぼくまで力がわいてくるよ。',
+      '肩の力はぬいて大丈夫。ぼくがついてるよ。',
+      'なんだか、ぽかぽかしてきたよ。'
+    ];
+    if(curMat)p.push(`「${curMat}」だね。ぼくも隣でじっと見てるよ。`,`「${curMat}」、むずかしそう…でも、きみならきっとできるよ。`);
+    if(mood==='hungry'||mood==='weak')p.push('おなかがすいてたけど、がんばってる姿を見てたら元気が出てきたよ。');
+    if(hr>=23||hr<5)p.push('夜ふかしさん…ぼくはそばにいるよ。ふわぁ。');
+    return p;
+  }
+  if(t&&!t.at)return['ひと息ついてるんだね。のびーっ。','あったかいお茶でも飲んでおいで。ここで待ってるよ。','ぼくもちょっとだけ昼寝しようかな…ふわぁ。','休んだあとの一口目は、きっといつもよりおいしいよ。'];
+  if(petSleeping())return['すやすや…むにゃ…あっ、帰ってきた！','ずっと待ってたんだよ。また会えて嬉しいな。','ふわぁ…ちょっと寝すぎちゃったかも。ひさしぶり！','夢の中でね、おっきなノートの上でお昼寝してたんだ。','おかえり！ぼく、ずっとここで待ってたよ。'];
+  const pool=[];
+  if(mood==='weak')pool.push('なんだか…ちからが出ないや…','おなかがぐ〜って鳴ってるよ…。','ぼく、ぺたんってしちゃいそう…','ちょっとだけでも、そばにいてくれたら元気が出るよ。','…あ、来てくれたんだね。うれしいな。');
+  else if(mood==='hungry')pool.push('おなかすいたなぁ…ぐぅ〜。','ページをめくる音、ひさしぶりに聞きたいな。','ちょっとだけでいいから、一緒にやろうよ。','がんばってる姿を見ると、元気が出るんだ。');
+  else if(mood==='happy')pool.push('おなかいっぱい！今日はなんでもできそう！','ぽかぽかして、すっごくいい気分だよ。','ふふっ、しあわせ〜。ありがとう。','いま、スキップしたい気分なんだ。');
+  else pool.push('なんだか今日はいいことありそうな予感がするよ。','ねえねえ、ぼくのこと見ててくれたの？えへへ。','ここにいるだけで、なんだか安心するな。','きょうは、どんなことを知るのかな。わくわくするね。');
+  if(hr>=5&&hr<11)pool.push('おはよう！朝の空気って、頭がすーっとするよね。','ふぁ…おはよう。朝ごはん、ちゃんと食べた？');
+  else if(hr>=11&&hr<18)pool.push('おひるだね。お日さまがぽかぽか気持ちいいよ。','午後のまどろみ…ねむくなってきちゃった。');
+  else if(hr>=18&&hr<23)pool.push('夕焼け、きれいだったね。もうすぐ夜が来るよ。','夜はしずかで、なんだか集中できる気がするな。');
+  else pool.push('こんな時間まで起きてるんだ…ぼくも付き合うけど、無理はしないでね。','そろそろ眠たい目をしてるよ。ふわぁ…');
+  if(td>0)pool.push(`今日は${hm(td)}も頑張ったね。ぼくまでうれしいよ。`);
+  if(st>=2)pool.push(`${st}日つづけて会えてるね。毎日会えると、元気が出るな。`);
+  if(st>=7)pool.push(`もう${st}日もだよ！ぼく、毎日がたのしみなんだ。`);
+  if(lastLog&&(Date.now()-lastLog.t)/36e5>=36&&mood!=='weak')pool.push(`${Math.floor((Date.now()-lastLog.t)/864e5)||1}日ぶりだね。会いたかったよ！`);
+  if(lastMat)pool.push(`この前の「${lastMat}」、集中してたね。ぼく、ちゃんと見てたよ。`);
+  if(sj)pool.push(`${sj}のこと、ほんとに好きなんだね。見てるとわかるよ。`,`${sj}の話をしてるときの目、きらきらしてるよ。`);
+  if(type==='morning')pool.push('朝のうちに会えることが多いから、ぼくも早起きになっちゃった。');
+  if(type==='day')pool.push('お昼ごろに会うのが、ぼくたちのリズムだね。');
+  if(type==='night')pool.push('夜に会うことが多いね。ぼくもすっかり夜型さ。');
+  if(acc)pool.push(`${acc.icon}${acc.name}、気に入ってるんだ。似合ってる？`);
+  if(realLv===1)pool.push('コツ、コツ…殻の中、あったかいな。','だれかの声が聞こえる気がする…');
+  if(realLv===2)pool.push('お外ってこんなに広いんだね！','まだ上手に歩けないけど、がんばるよ。');
+  if(realLv>=3&&realLv<5)pool.push('もっと色んなところに行ってみたいな。','ぼく、すこし大きくなった気がする！');
+  if(realLv>=5)pool.push('星がね、ぼくにこっそり話しかけてくるんだ。');
+  if(realLv>=6)pool.push('ずいぶん遠くまで来たね。ここからの景色、ぼくは好きだよ。','これからも、ずっと隣にいるよ。');
+  pool.push('ちょっとずつでも続けるのって、すごいことなんだよ。','むずかしいことも、小さく分けたらきっとできるよ。','ねえ、ぼくをつんつんしてみて。えへへ、くすぐったい。');
+  return pool;
+}
+function talkPet(ev){
+  if(ev)ev.stopPropagation();
+  const lines=getPetLines().filter(x=>x!==petLine);
+  petLine=pickL(lines.length?lines:getPetLines());
+  const b=$('pt_bub');
+  if(b){
+    b.textContent=petLine;
+    showBubble(4500);
+  }else{
+    showBubble(4500);
+    render();
+  }
+}
+function claimPetGrowth(ev){
+  if(ev)ev.stopPropagation();
+  const h=allTotal()/3600,realLv=calcPetLv(h);
+  if(!S.pet)S.pet={claimedLv:1,viewLv:0};
+  if(S.pet.claimedLv<realLv){
+    S.pet.claimedLv++;
+    S.pet.viewLv=0;
+    petAnim=true;
+    petLine=(STAGE_CLAIM[S.pet.claimedLv]||'からだが光ってる…！')+(S.pet.claimedLv<realLv?' …まだ、からだの奥があつい。もっと変わりそう！':'');
+    showBubble(6000);
+    save();render();
+    clearTimeout(petTmr);
+    petTmr=setTimeout(()=>{petAnim=false;const elStage=$('pt_stg');if(elStage)elStage.classList.remove('pt-evo')},800);
+  }
+}
+const PET_SPR=(()=>{const M=a=>a.map(r=>r+[...r].reverse().join(''));return{
+egg:M(["........","........",".....ooo","...oosss","..osssss","..osssss",".ossssss",".ossssss",".ossssss",".ossssss",".ossssss",".ossssss","..osssss","..ooosss","...ooooo","........"]),
+hatch:M(["........","........","........","........","....oooo","...obbbb","..obbbbb","..obbbbb","..obbbbb","..obbbbb","..ososos",".ossssss",".ossssss","..osssss","...ooooo","........"]),
+a:M(["........","...o....","...obo..","...obboo","..obbbbb","..obbbbb","..obbbbb","..obbbbb","..obbbbb","..obbbbb","..obbbbb","..obbbbb","...obbbb","....oooo","........","........"]),
+b:M(["...o....","...ob...","...obo..","...obbo.","...obbbo","..obbbbb","..obbbbb","..obbbbb","..obbbbb","..obbbbb","..obbbbb","..obbbbb","...obbbb","....oooo","........","........"])
+}})();
+function petSVG(lv,h,c,sleep,run,opt){
+  opt=opt||{};const mood=opt.mood||'normal',type=opt.type||null,cat=opt.cat||null,awake=!sleep&&!run;
+  const P={o:'#2b3320',b:c,w:'#ffffff',s:'#fff3d6',p:'#ff9eb5',y:'#fbbf24',g:'#d97706',u:'#bfe6ff',v:'#5aa9f0',n:'#22c55e',r:'#ef4444',k:'#2b3320'};
+  const R=(x,y,w,hh,ch,op)=>`<rect x="${x}" y="${y}" width="${w}" height="${hh}" fill="${P[ch]||ch}"${op?` fill-opacity="${op}"`:''}/>`;
+  const pts=(a,ch)=>a.map(p=>R(p[0],p[1],1,1,ch)).join('');
+  const mp=a=>a.map(p=>[15-p[0],p[1]]);
+  const G=rows=>{let s='';rows.forEach((r,y)=>{let x=0;while(x<r.length){const ch=r[x];if(ch==='.'){x++;continue}let e=x;while(e<r.length&&r[e]===ch)e++;s+=R(x,y,e-x,1,ch);x=e}});return s};
+  const wing=(big,fill,edge)=>{
+    const o=big?[[1,4],[0,5],[0,6],[0,7],[0,8],[0,9],[0,10],[1,11]]:[[1,5],[0,6],[0,7],[0,8],[0,9],[1,10]];
+    const f=big?[[1,5],[1,6],[1,7],[1,8],[1,9],[1,10]]:[[1,6],[1,7],[1,8],[1,9]];
+    return pts(o,edge)+pts(mp(o),edge)+pts(f,fill)+pts(mp(f),fill)};
+  const ey=lv<=2?7:6;
+  let eyes;
+  if(sleep)eyes=`<g>${R(4,ey+1,2,1,'k')}${R(10,ey+1,2,1,'k')}</g>`;
+  else if(run)eyes=`<g>${R(4,ey,2,2,'k')}${R(10,ey,2,2,'k')}${R(4,ey-1,2,1,'k')}${R(10,ey-1,2,1,'k')}</g>`;
+  else if(mood==='happy')eyes=`<g>${pts([[4,ey+1],[5,ey],[6,ey+1],[9,ey+1],[10,ey],[11,ey+1]],'k')}</g>`;
+  else if(mood==='weak')eyes=`<g class="pt-eye">${R(5,ey,1,2,'k')}${R(10,ey,1,2,'k')}</g>${pts([[5,ey+2],[10,ey+2]],'v')}`;
+  else eyes=`<g class="pt-eye">${R(5,ey,1,2,'k')}${R(10,ey,1,2,'k')}</g>`;
+  const cc=type==='morning'?'#ffb35c':type==='night'?'#b4a7ff':'p';
+  const cheek=pts([[4,8],[11,8]],cc);
+  let mouth='';
+  if(lv>=2){
+    if(sleep)mouth=R(7,8,2,1,'#e11d48');
+    else if(run)mouth=R(7,8,2,1,'k');
+    else if(mood==='happy')mouth=R(6,8,4,1,'k');
+    else if(mood==='hungry')mouth=R(7,8,2,2,'k');
+    else if(mood==='weak')mouth=R(7,8,2,1,'k')+pts([[6,9],[9,9]],'k');
+    else mouth=R(7,8,2,1,'k');
+  }
+  let s=R(4,15,8,1,'#000',.16),b='',fx='';
+  if(lv===1){
+    b=G(PET_SPR.egg);
+    for(let x=2;x<=13;x++)b+=R(x,x%2?10:9,1,1,'b');
+    b+=pts([[9,5],[10,5],[10,6],[4,11],[5,11]],'b');
+    if(h>=3)b+=pts([[7,3],[8,4],[7,5],[8,6]],'o');
+    b+=cheek+eyes;
+  }else if(lv===2){
+    b=G(PET_SPR.hatch)+pts([[7,3],[8,3],[5,2],[6,2],[9,2],[10,2]],'n')+cheek+eyes+mouth;
+  }else{
+    const big=lv>=5;
+    if(lv>=4)b+=wing(big,lv===4?'u':'y',lv===4?'o':'g');
+    b+=G(lv===3?PET_SPR.a:PET_SPR.b);
+    if(lv===3)b+=[[3,5],[3,6],[4,5]].map(p=>R(p[0],p[1],1,1,'#ffffff',.5)).join('');
+    b+=R(6,8,4,1,'w')+R(5,9,6,3,'w');
+    b+=pts([[4,14],[5,14],[10,14],[11,14]],'o');
+    if(cat==='sci')b+=R(4,ey-1,3,3,'w')+R(9,ey-1,3,3,'w');
+    b+=cheek+eyes+mouth;
+    if(h>=50)b+=R(4,12,8,1,{sci:'v',lang:'p',soc:'y',edu:'n'}[cat]||'r');
+    if(h>=300)b+=R(7,10,2,2,'y');
+    if(lv===5&&h<400)b+=R(7,5,2,1,'y');
+    if(h>=400&&lv>=5)b+=R(6,3,1,1,'y')+R(9,3,1,1,'y')+R(6,4,4,1,'y')+R(7,4,2,1,'r');
+    if(lv===6)b+=R(5,1,6,1,'y');
+    if(h>=200)b+=pts([[1,12],[0,13],[1,13],[2,13],[1,14]],'v');
+    if(type&&(lv<=4||(lv===5&&h<400))){
+      if(type==='morning')b+=pts([[7,2],[8,1],[7,0]],'y');
+      else if(type==='night')b+=pts([[8,0],[7,1],[7,2],[8,2]],'#fef08a')+pts([[10,1]],'#fef08a');
+      else b+=pts([[7,2],[8,2],[8,1],[9,1]],'n');
+    }
+    if(cat==='sci'){
+      const L=[[4,ey+2],[5,ey+2],[6,ey+2],[7,ey],[8,ey],[3,ey-1],[3,ey],[3,ey+1]];
+      b+=pts(L,'o')+pts(mp(L),'o');
+    }
+  }
+  if(awake&&lv>=3&&h>=100&&(mood==='normal'||mood==='happy'))b+=pts([[1,0],[0,1],[1,1],[2,1],[1,2]],'y');
+  if(awake&&lv>=3&&h>=100&&mood==='normal')b+=pts([[14,1],[13,2],[14,2],[15,2],[14,3]],'y');
+  if(awake&&mood==='happy')fx+=pts([[13,0],[15,0],[13,1],[14,1],[15,1],[14,2]],'r');
+  if(awake&&mood==='hungry')fx+=pts([[14,2],[14,3]],'v');
+  if(sleep)fx+=`<g fill="#2b3320" fill-opacity=".55">${R(0,0,3,1,'k')}${R(1,1,1,1,'k')}${R(0,2,3,1,'k')}</g>`;
+  else if(run)fx+=pts([[1,0],[1,1],[1,2],[1,4]],'r');
+  return `<svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">${s}${b}${fx}</svg>`;
+}
+/* 箱庭の部屋 */
+let roomPos={x:34,y:10},roomTmr=null;
+function roomSVG(h,f,c,dark){
+  const hr=new Date().getHours(),tod=hr>=5&&hr<8?'morning':hr>=8&&hr<16?'day':hr>=16&&hr<19?'evening':'night';
+  const sky={morning:'#ffe0b0',day:'#8fd3ff',evening:'#ff9d6b',night:'#1b2559'}[tod];
+  const R=(x,y,w,hh,fill,op)=>`<rect x="${x}" y="${y}" width="${w}" height="${hh}" fill="${fill}"${op?` fill-opacity="${op}"`:''}/>`;
+  let s=R(0,0,96,36,'#efe6d2');
+  for(let x=4;x<96;x+=8)s+=R(x,0,1,34,'#e5dac0');
+  s+=R(0,34,96,2,'#b08d63')+R(0,36,96,20,'#cda477');
+  [42,48,54].forEach(y=>s+=R(0,y,96,1,'#b98f63'));
+  [[36,0],[42,6],[48,3]].forEach(([y,o])=>{for(let x=o;x<96;x+=12)s+=R(x,y,1,6,'#b98f63')});
+  s+=R(38,6,20,18,'#8a6a45')+R(40,8,16,14,sky);
+  if(tod==='day')s+=R(41,10,4,1,'#fff')+R(42,9,2,1,'#fff')+R(50,17,5,1,'#fff');
+  else if(tod==='morning')s+=R(51,17,4,4,'#fff3b0')+R(43,10,4,1,'#fff',.7);
+  else if(tod==='evening')s+=R(41,17,4,4,'#ffe08a')+R(50,11,5,1,'#ffc9a0');
+  else s+=R(51,10,3,3,'#fff6c2')+R(42,10,1,1,'#fff')+R(44,18,1,1,'#fff')+R(53,19,1,1,'#fff')+R(46,12,1,1,'#fff');
+  s+=R(47,8,2,14,'#8a6a45')+R(40,14,16,2,'#8a6a45')+R(36,24,24,2,'#a67449');
+  if(h>=200)s+=R(50,21,3,3,'#a5b4fc')+R(50,21,1,1,'#fff');
+  if(h>=500)s+=R(12,9,12,14,'#8a6a45')+R(13,10,10,12,'#1b2559')+R(17,13,2,4,'#fbbf24')+R(16,14,4,2,'#fbbf24');
+  if(h>=300){for(let i=0;i<6;i++)s+=R(24+i,27-i,2,2,'#d97706');s+=R(30,21,2,2,'#5aa9f0')+R(27,29,1,6,'#6b4f2d')+R(29,29,1,6,'#6b4f2d')}
+  if(h>=100){s+=R(0,2,96,1,'#6b4f2d');const gc=['#fbbf24','#ef4444','#5aa9f0','#22c55e'];for(let x=3,i=0;x<96;x+=6,i++)s+=R(x,3,2,2,gc[i%4])}
+  /* 本棚（進行中・アーカイブ含め教材の色が背表紙に） */
+  s+=R(64,13,28,2,'#8a5a3a');
+  const mc=S.mats.slice(0,8).map(m=>col(m));['#059669','#3b82f6','#f59e0b','#ef4444','#8b5cf6'].forEach(d=>{if(mc.length<5)mc.push(d)});
+  mc.slice(0,8).forEach((cl,i)=>{const hh=5+(i%3);s+=R(66+i*3,13-hh,2,hh,cl)+R(66+i*3,13-hh,2,1,'#fff',.35)});
+  s+=R(2,36,3,17,'#8a5a3a')+R(2,50,30,2,'#8a5a3a')+R(5,52,2,2,'#6b4f2d')+R(29,52,2,2,'#6b4f2d')+R(5,43,27,7,'#f8f4ea')+R(13,43,19,7,c)+R(13,43,19,1,'#fff',.35)+R(6,41,8,3,'#fff')+R(6,43,8,1,'#e8e0d0');
+  s+=R(62,30,32,3,'#8a5a3a')+R(64,33,2,19,'#6b4f2d')+R(90,33,2,19,'#6b4f2d')+R(70,33,14,9,'#a67449')+R(76,37,2,1,'#fbbf24');
+  s+=R(65,28,9,2,mc[0])+R(66,26,8,2,mc[1])+R(65,24,9,2,mc[2])+R(77,28,9,2,'#fff')+R(81,27,1,3,'#8a5a3a')+R(89,20,1,10,'#6b4f2d')+R(87,18,6,3,'#fbbf24');
+  if(h>=25)s+=R(34,48,5,4,'#c0714a')+R(35,43,3,5,'#22c55e')+R(33,45,2,2,'#22c55e')+R(38,45,2,2,'#22c55e');
+  s+=R(42,48,20,1,'#c97b7b')+R(41,49,22,3,'#e9a3a3')+R(42,52,20,1,'#c97b7b');
+  s+=R(45,51,8,2,'#f3e8d0')+R(46,53,6,1,'#8a5a3a');
+  if(f>=30)s+=R(46,50,6,1,'#e0a35a');
+  if(tod==='night'||dark)s+=R(0,0,96,56,'#0b1240',.3);
+  else if(tod==='evening')s+=R(0,0,96,56,'#ff7a3d',.1);
+  return s;
+}
+function roomGoal(){
+  if(S.timer&&S.timer.at)return{x:71,y:7};
+  if(petSleeping())return{x:8,y:22};
+  return null;
+}
+function roomMove(x,y,done){
+  const el=$('rm_pet'),bob=$('pt_stg');if(!el)return;
+  const d=Math.hypot(x-roomPos.x,(y-roomPos.y)*1.3),dur=Math.max(.6,d*.075);
+  el.style.transition=`left ${dur}s linear,bottom ${dur}s linear`;
+  if(bob)bob.classList.add('pt-walk');
+  el.style.left=x+'%';el.style.bottom=y+'%';roomPos={x,y};
+  clearTimeout(roomTmr);
+  roomTmr=setTimeout(()=>{const b2=$('pt_stg');if(b2)b2.classList.remove('pt-walk');done&&done()},dur*1000+60);
+}
+function roomWander(){
+  if(!$('rm_pet')){clearTimeout(roomTmr);return}
+  const g=roomGoal();
+  if(g){
+    const next=()=>{roomTmr=setTimeout(roomWander,3000)};
+    if(Math.abs(g.x-roomPos.x)>1||Math.abs(g.y-roomPos.y)>1)roomMove(g.x,g.y,next);else next();
+    return;
+  }
+  const weak=petMood()==='weak';
+  roomMove(3+Math.random()*76,3+Math.random()*22,()=>{roomTmr=setTimeout(roomWander,(weak?7000:2200)+Math.random()*(weak?6000:4500))});
+}
+let bubRaf=null;
+function bubFix(){
+  const p=$('rm_pet'),b=$('pt_bub'),r=document.querySelector('.rm');
+  if(!p||!b||!r){bubRaf=null;return}
+  if(!b.classList.contains('hide')){
+    const pr=p.getBoundingClientRect(),rr=r.getBoundingClientRect(),bw=b.offsetWidth,bh=b.offsetHeight;
+    const cx=pr.left+pr.width/2;
+    const left=Math.max(rr.left+6,Math.min(rr.right-bw-6,cx-bw/2));
+    const down=(pr.top-rr.top)<bh+12;
+    b.style.left=(left-pr.left)+'px';
+    b.style.setProperty('--tx',Math.max(8,Math.min(bw-8,cx-left))+'px');
+    b.classList.toggle('dn',down);
+  }
+  bubRaf=requestAnimationFrame(bubFix);
+}
+function roomStart(){
+  clearTimeout(roomTmr);const el=$('rm_pet');if(!el)return;
+  cancelAnimationFrame(bubRaf);bubRaf=requestAnimationFrame(bubFix);
+  el.style.transition='none';el.style.left=roomPos.x+'%';el.style.bottom=roomPos.y+'%';
+  roomTmr=setTimeout(roomWander,400);
+}
+function vPartner(){
+  const sec=allTotal(),h=sec/3600,realLv=calcPetLv(h);
+  if(!S.pet||typeof S.pet!=='object')S.pet={claimedLv:h>=10?1:realLv,viewLv:0};
+  if(S.pet.claimedLv>realLv)S.pet.claimedLv=realLv;
+  const needClaim=S.pet.claimedLv<realLv;
+  const dispLv=needClaim?S.pet.claimedLv:(S.pet.viewLv||realLv);
+  const stg=PET_STAGES[dispLv-1]||PET_STAGES[0];
+  const tmInfo=topMatInfo(),sleep=petSleeping(),run=Boolean(S.timer&&S.timer.at);
+  const opt=petOpt(),f=foodLevel(),sjI=topSubInfo();
+  if(!petLine)petLine=pickL(getPetLines());
+  const nextAcc=PET_ACCS.find(a=>h<a.h);
+  const unlockedAccs=PET_ACCS.filter(a=>h>=a.h);
+  const bobCls=run?'pt-run':(opt.mood==='weak'||sleep)?'pt-droop':'pt-float';
+  return `<div class="card pt-card">
+  <div class="rm">
+    <svg class="rm-bg" viewBox="0 0 96 56" shape-rendering="crispEdges" aria-hidden="true">${roomSVG(h,f,tmInfo.color,sleep)}</svg>
+    <div id="rm_pet" class="rm-pet" style="left:${roomPos.x}%;bottom:${roomPos.y}%" onclick="talkPet(event)">
+      <div id="pt_bub" class="rm-bub ${bubVisible?'':'hide'}">${esc(petLine)}</div>
+      <div id="pt_stg" class="${bobCls} ${petAnim?'pt-evo':''}">${petSVG(dispLv,h,tmInfo.color,sleep,run,opt)}</div>
+    </div>
+  </div>
+  <div class="pt-head" style="margin-top:10px;margin-bottom:0">
+    <span class="pt-badge" style="border-color:${tmInfo.color}66"><b style="color:${tmInfo.color}">Lv.${dispLv}</b> ${esc(stg.name)}</span>
+    <div style="display:flex;gap:6px">
+      <button class="g" style="padding:3px 8px;font-size:11px" onclick="talkPet(event)">💬 話しかける</button>
+      <button class="g" style="padding:3px 8px;font-size:11px" onclick="openPetModal()">成長の記録</button>
+    </div>
+  </div>
+  ${needClaim?`<button onclick="claimPetGrowth(event)" style="width:100%;margin-top:10px;background:#f59e0b">✨ これまでの学習（${Math.floor(h)}時間）を受け取って進化！（Lv.${S.pet.claimedLv} → Lv.${S.pet.claimedLv+1}）</button>`:''}
+  <div class="pt-meta">
+    <span>完成形まで <b id="pt_hrs" style="color:var(--tx)">${h.toFixed(1)} / 500時間</b>（${Math.min(100,Math.floor(h/5))}%）</span>
+    <span>${nextAcc?`次：${nextAcc.icon}${nextAcc.name}（${nextAcc.h}h）`:'👑 全装飾コンプリート'}</span>
+  </div>
+  <div class="bar" style="height:7px;margin:4px 0 0"><i id="pt_bar" style="width:${Math.min(100,h/5)}%;background:${tmInfo.color}"></i></div>
+  <div class="pt-meta" style="margin-top:8px"><span>🍙 ごはん <b id="pt_ft" style="color:var(--tx)">${Math.round(f)}%</b></span><span>${MOOD_LABEL[opt.mood]}</span></div>
+  <div class="bar" style="height:7px;margin:4px 0 0"><i id="pt_food" style="width:${f}%;background:${opt.mood==='weak'?'#e5484d':opt.mood==='hungry'?'#f59e0b':'#10b981'}"></i></div>
+  ${(unlockedAccs.length||(dispLv>=3&&(opt.type||sjI)))?`<div class="pt-chips">${dispLv>=3&&opt.type?`<span class="pt-chip on">${TYPE_ICON[opt.type]} ${TYPE_LABEL[opt.type]}タイプ</span>`:''}${dispLv>=3&&sjI?`<span class="pt-chip on">得意：${esc(sjI.name)}</span>`:''}${unlockedAccs.map(a=>`<span class="pt-chip on">${a.icon} ${esc(a.name)}</span>`).join('')}</div>`:''}
+</div>`;
+}
+function openPetModal(){
+  const sec=allTotal(),h=sec/3600,realLv=calcPetLv(h);
+  if(!S.pet)S.pet={claimedLv:realLv,viewLv:0};
+  const maxUnlocked=Math.max(S.pet.claimedLv||1,1);
+  const dispLv=S.pet.viewLv||maxUnlocked;
+  const tmInfo=topMatInfo();
+  const m=$('pmod');
+  m.innerHTML=`<div class="pm-box">
+    <div class="row" style="align-items:center;justify-content:space-between;margin-bottom:8px">
+      <b style="font-size:16px">知識の相棒・成長の記録</b>
+      <button class="g" style="flex:none;padding:4px 10px;font-size:12px" onclick="closePetModal()">閉じる</button>
+    </div>
+    <div class="sub">累計 <b>${h.toFixed(1)}時間</b> ／ 完成形（500時間）まで残り <b>${Math.max(0,500-h).toFixed(1)}時間</b></div>
+    <div class="bar" style="margin:6px 0 12px"><i style="width:${Math.min(100,h/5)}%;background:${tmInfo.color}"></i></div>
+    ${S.pet.claimedLv<realLv?`<button onclick="claimPetGrowth(event);openPetModal()" style="width:100%;margin-bottom:12px;background:#f59e0b">✨ 過去の学習を受け取って進化させる（Lv.${S.pet.claimedLv} → Lv.${S.pet.claimedLv+1}）</button>`:''}
+    <div class="sub" style="font-weight:700;margin-bottom:4px">進化ステージ（解放済みの姿はタップで切り替え可能）</div>
+    <div class="pm-grid">
+      ${PET_STAGES.map(s=>{
+        const ok=s.lv<=maxUnlocked;
+        const on=dispLv===s.lv;
+        return `<div class="pm-st ${on?'on':''} ${ok?'':'lk'}" onclick="${ok?`setPetView(${s.lv})`:''}">
+          ${petSVG(s.lv,ok?Math.max(h,s.min):s.min,tmInfo.color,false,false,{...petOpt(),mood:'normal'})}
+          <div><b>Lv.${s.lv} ${esc(s.name)}</b></div>
+          <div class="sub" style="font-size:10px">${s.min}時間〜</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="sub" style="font-weight:700;margin:14px 0 4px">お世話と姿の変化</div>
+    <div class="sub" style="line-height:1.7;margin-bottom:4px">・勉強するとごはんがたまり（1日1時間で満腹）、時間がたつと少しずつへります。ごはんが少ないと元気がなくなりますが、レベルは下がりません。<br>・勉強する時間帯で頭の飾りと頬の色が変わります（朝型🌅／昼型☀️／夜型🌙）。<br>・得意な科目で、身につけるものが変わります（数理系はメガネ、スカーフの色など）。</div>
+    <div class="sub" style="font-weight:700;margin:14px 0 4px">節目で増えるアイテム・装飾（25〜500時間）</div>
+    <div class="pm-acc">
+      ${PET_ACCS.map(a=>{
+        const ok=h>=a.h;
+        return `<div class="pm-ac-it ${ok?'':'lk'}"><span style="font-size:16px">${ok?a.icon:'🔒'}</span><div><div style="font-weight:600">${esc(a.name)}</div><div class="sub" style="font-size:10px">${a.h}時間</div></div></div>`;
+      }).join('')}
+    </div>
+  </div>`;
+  m.style.display='flex';
+}
+function setPetView(lv){
+  if(!S.pet)return;
+  const realLv=calcPetLv(allTotal()/3600);
+  S.pet.viewLv=(lv===realLv)?0:lv;
+  save();openPetModal();render();
+}
+function closePetModal(){$('pmod').style.display='none'}
+
 /* ホーム */
-function vHome(){const t=S.timer,run=t&&t.at,curId=t?t.mid:(S.sel||(S.mats[0]&&S.mats[0].id)),cur=mat(curId);
-const wStart=wk(0),wEnd=new Date(wStart.getTime()+6048e5-1);
-return `<div class="card"><h2><span>今週の目標</span><span>${wStart.getMonth()+1}/${wStart.getDate()}〜${wEnd.getMonth()+1}/${wEnd.getDate()}</span></h2>
+function vHome(){
+  const t=S.timer,run=t&&t.at,curId=t?t.mid:ensureValidSel(),cur=mat(curId);
+  const wStart=wk(0),wEnd=new Date(wStart.getTime()+6048e5-1);
+  const canStart=Boolean(curId);
+  const _all=`<div class="card"><h2><span>今週の目標</span><span>${wStart.getMonth()+1}/${wStart.getDate()}〜${wEnd.getMonth()+1}/${wEnd.getDate()}</span></h2>
 <div class="row" style="align-items:center;margin-bottom:10px"><div class="ring" id="rg" style="flex:none"><span id="gr">0%</span></div><div style="flex:1"><div class="sub">目標 <span id="gl_lbl">${S.goal}</span>時間 ／ 連続 <span id="st_num">${streak()}</span>日</div><div class="big" id="gt">0分</div><div class="sub" id="ml" style="margin-top:2px"></div></div></div>
 <div class="kpis"><div><span class="sub">今日</span><b id="kpi_td">0分</b></div><div><span class="sub">今月</span><b id="kpi_mo">0時間</b></div><div><span class="sub">累計</span><b id="kpi_al">0時間</b></div></div>
 <div class="sub">今日の目標 <span id="dg"></span></div><div class="bar"><i id="gp" style="background:#f59e0b"></i></div>
 <div class="row" style="margin-top:10px"><div><div class="sub">週目標（時間）</div><input type="number" min="0.5" step="0.5" value="${S.goal}" oninput="setGoal(this.value)" style="margin:0"></div><div><div class="sub">1日目標（分）</div><input type="number" min="0" step="5" value="${DG()}" oninput="setDGoal(this.value)" style="margin:0"></div><div><div class="sub">最低ライン（分）</div><input type="number" min="0" step="5" value="${MN()}" oninput="setMinDay(this.value)" style="margin:0"></div></div></div>${subWeek()}
 <div class="card"><h2><span>タイマー</span>${cur?`<span style="color:${col(cur)}">● ${esc(cur.title)}</span>`:''}</h2><div class="clock" id="clock">00:00:00</div>
-${shelfHTML(curId,'selectMat')}
-<div class="row"><button onclick="toggle()" ${S.mats.length?'':'disabled'}>${run?'一時停止':t?'再開':'スタート'}</button>${t?'<button class="r" onclick="finish()">終了して記録</button>':'<button class="g" onclick="openManualLog()">手動で記録</button>'}</div></div>`}
+${timerShelfHTML(curId)}
+<div class="row"><button onclick="toggle()" ${canStart||t?'':'disabled'}>${run?'一時停止':t?'再開':'スタート'}</button>${t?'<button class="r" onclick="finish()">終了して記録</button>':'<button class="g" onclick="openManualLog()">手動で記録</button>'}</div></div>`;
+  return homeCards(_all);
+}
+
+/* ホームのカード並べ替え */
+let homeEdit=false;
+const HOME_DEF=['pet','goal','timer'],HOME_NAME={pet:'知識の相棒',goal:'今週の目標',timer:'タイマー'};
+function homeOrder(){let o=Array.isArray(S.homeOrder)?S.homeOrder.filter(x=>HOME_DEF.includes(x)):[];o=o.filter((x,i)=>o.indexOf(x)===i);HOME_DEF.forEach(x=>{if(!o.includes(x))o.push(x)});return o}
+function toggleHomeEdit(){homeEdit=!homeEdit;render()}
+function moveHome(id,d){const o=homeOrder(),i=o.indexOf(id),j=i+d;if(j<0||j>=o.length)return;[o[i],o[j]]=[o[j],o[i]];S.homeOrder=o;save();render()}
+function homeCards(all){
+  const k=all.indexOf('<div class="card"><h2><span>タイマー');
+  const parts={pet:vPartner(),goal:all.slice(0,k),timer:all.slice(k)},o=homeOrder();
+  return `<div style="display:flex;justify-content:flex-end;margin:0 0 8px"><button class="g" style="padding:5px 12px;font-size:12px" onclick="toggleHomeEdit()">${homeEdit?'✓ 完了':'⇅ 並べ替え'}</button></div>`+
+  o.map((id,i)=>`<div class="hc ${homeEdit?'edit':''}">${homeEdit?`<div class="hc-bar"><b>${HOME_NAME[id]}</b><span><button class="g" onclick="moveHome('${id}',-1)" ${i?'':'disabled'}>↑</button><button class="g" onclick="moveHome('${id}',1)" ${i<o.length-1?'':'disabled'}>↓</button></span></div>`:''}${parts[id]}</div>`).join('')
+}
 
 /* 記録 */
 function setT(d,t){if(t)ed.nt=0;d=d||dk(ed.t);t=t||tm(ed.t);ed.t=new Date(d+'T'+t).getTime()||ed.t}
 function selEdMat(id){ed.mid=id;render()}
 function vForm(){const e=ed,m=mat(e.mid),pv=prevTo();
-return `<div class="card"><h2>${e.id?'記録を編集':e.fin?'記録を保存':'教材を選んで記録'}</h2>
-${shelfHTML(e.mid,'selEdMat')}
+return `<div class="card"><h2><span>${e.id?'記録を編集':e.fin?'記録を保存':'教材を選んで記録'}</span>${m?`<span style="color:${col(m)}">● ${esc(m.title)}</span>`:''}</h2>
+${logShelfHTML(e.mid,'selEdMat')}
 <div class="row"><input type="date" value="${dk(e.t)}" oninput="setT(this.value,null)"><input type="time" value="${tm(e.t)}" oninput="setT(null,this.value)"></div>
 <div class="sub" style="margin-bottom:4px">学習時間（分）</div>
 <input type="number" min="0" placeholder="分" value="${Math.round(e.sec/60)}" oninput="ed.sec=+this.value*60">
@@ -331,15 +924,18 @@ function setFr(v){ed.fr=v;rc()}
 let _u=0;const uid=()=>{_u=Math.max(_u+1,Date.now());return _u};
 function resFr(e){if(e.to===''||e.to==null)return null;if(e.fr!==''&&e.fr!=null)return +e.fr;if(e.amt!==''&&e.amt!=null&&+e.amt>0)return +e.to-+e.amt+1;const pv=prevTo();if(pv!=null)return pv+1;return null}
 function saveEd(){const e=ed;if(!e.mid||!(e.sec>0))return;const r={id:e.id||uid(),mid:+e.mid,t:e.t,sec:Math.round(e.sec),amt:e.amt===''||e.amt==null?null:+e.amt,to:e.to===''||e.to==null?null:+e.to,fr:resFr(e),focus:e.focus||0,memo:e.memo||'',nt:e.nt||0};
-const i=S.logs.findIndex(l=>l.id==r.id);if(i>=0)S.logs[i]=r;else S.logs.push(r);S.sel=r.mid;ed=null;save();render()}
+const i=S.logs.findIndex(l=>l.id==r.id);if(i>=0)S.logs[i]=r;else S.logs.push(r);if(mat(r.mid)&&!mat(r.mid).arc)S.sel=r.mid;ed=null;const m=mat(r.mid);petLine=pickL([`「${m?m.title:'勉強'}」、がんばったね！`,`${hm(r.sec)}も続けられるなんて、すごいよ。`,'ぼくまで元気になってきたよ！','ありがとう、おかげでぽかぽかするよ。']);showBubble(5000);save();render()}
 function openManualLog(){tab='log';addNew();}
-function addNew(mid){ed={id:null,mid:mid||S.sel||(S.mats[0]&&S.mats[0].id),t:Date.now(),sec:1800,amt:'',fr:'',to:'',focus:0,memo:''};render()}
+function addNew(mid){
+  const defId=mid||ensureValidSel()||(S.mats[0]&&S.mats[0].id);
+  ed={id:null,mid:defId,t:Date.now(),sec:1800,amt:'',fr:'',to:'',focus:0,memo:''};render();
+}
 function editLog(id){const l=S.logs.find(x=>x.id==id);if(!l)return;ed={...l,amt:l.amt??'',fr:l.fr??'',to:l.to??''};render();scrollTo(0,0)}
 function vLog(){const ls=[...S.logs].sort((a,b)=>b.t-a.t).slice(0,150),g={};ls.forEach(l=>(g[dk(l.t)]=g[dk(l.t)]||[]).push(l));
-return (ed?vForm():S.mats.length?`<div class="card"><h2>教材をタップして記録を追加</h2>${shelfHTML(null,'addNew')}</div>`:'')+
-`<div class="card"><h2>タイムライン</h2>${ls.length?Object.entries(g).map(([d,a])=>{const dd=new Date(d.replace(/-/g,'/'));return `<div class="dh"><b>${dd.getMonth()+1}/${dd.getDate()}（${DW[dd.getDay()]}）</b><span>${hm(sm(a))}</span></div>`+a.map(l=>{const m=mat(l.mid);return `<div class="it"><div style="width:4px;height:44px;border-radius:2px;background:${col(m)};flex:none"></div>${cover(m)}<div class="it-body"><b>${esc(m?m.title:'削除済み')}</b><div class="sub">${l.nt?'':tm(l.t)+'〜 '}<b style="color:var(--tx)">${hm(l.sec)}</b>${l.amt!=null?' ／ '+l.amt+(m?m.unit:'')+(l.to!=null?'（'+(l.fr!=null?l.fr:'')+'〜'+l.to+'）':''):''}${l.focus?' ／ '+['','△','○','◎'][l.focus]:''}${l.memo?'<br>'+esc(l.memo):''}</div></div><button class="g" onclick="editLog(${l.id})">編集</button></div>`}).join('')}).join(''):'<div class="sub">記録がありません</div>'}</div>`}
+return (ed?vForm():S.mats.length?`<div class="card"><h2><span>教材をタップして記録を追加</span><span class="sub" style="font-weight:400">★お気に入り優先</span></h2>${logShelfHTML(null,'addNew')}</div>`:'')+
+`<div class="card"><h2>タイムライン</h2>${ls.length?Object.entries(g).map(([d,a])=>{const dd=new Date(d.replace(/-/g,'/'));return `<div class="dh"><b>${dd.getMonth()+1}/${dd.getDate()}（${DW[dd.getDay()]}）</b><span>${hm(sm(a))}</span></div>`+a.map(l=>{const m=mat(l.mid);return `<div class="it"><div style="width:4px;height:44px;border-radius:2px;background:${col(m)};flex:none"></div>${cover(m)}<div class="it-body"><b>${esc(m?m.title:'削除済み')}</b>${m&&m.arc?' <span class="arc-tag">完了</span>':''}<div class="sub">${l.nt?'':tm(l.t)+'〜 '}<b style="color:var(--tx)">${hm(l.sec)}</b>${l.amt!=null?' ／ '+l.amt+(m?m.unit:'')+(l.to!=null?'（'+(l.fr!=null?l.fr:'')+'〜'+l.to+'）':''):''}${l.focus?' ／ '+['','△','○','◎'][l.focus]:''}${l.memo?'<br>'+esc(l.memo):''}</div></div><button class="g" onclick="editLog(${l.id})">編集</button></div>`}).join('')}).join(''):'<div class="sub">記録がありません</div>'}</div>`}
 
-/* 振り返り（Studyplus風の教材色分け積み上げグラフ＋期間自動ジャンプ＋教材別マトリクス表） */
+/* 振り返り */
 function jumpLatest(){
   if(!S.logs.length)return;
   const maxT=Math.max(...S.logs.map(l=>l.t));
@@ -359,7 +955,6 @@ function jumpLatest(){
 function range(){
   let a,b,bk=[];
   if(mode==='day'){
-    /* 日モード：1週間分の7日間推移 */
     a=wk(off);
     for(let i=0;i<7;i++){
       const s=a.getTime()+i*864e5,d=new Date(s);
@@ -370,7 +965,6 @@ function range(){
     return{a:a.getTime(),b:b.getTime(),bk,label:`${a.getFullYear()}年${a.getMonth()+1}月${a.getDate()}日〜${e.getMonth()+1}月${e.getDate()}日`};
   }
   if(mode==='week'){
-    /* 週モード：直近7週間分の週次推移（Studyplus風） */
     const endWk=wk(off),startWk=wk(off-6);
     for(let i=0;i<7;i++){
       const w=wk(off-6+i),s=w.getTime();
@@ -379,7 +973,6 @@ function range(){
     const e=new Date(endWk.getTime()+6048e5-1);
     return{a:startWk.getTime(),b:endWk.getTime()+6048e5,bk,label:`${startWk.getFullYear()}年${startWk.getMonth()+1}月${startWk.getDate()}日〜${e.getMonth()+1}月${e.getDate()}日`};
   }
-  /* 月モード：月内の日別推移 */
   const n=new Date();a=new Date(n.getFullYear(),n.getMonth()+off,1);b=new Date(a.getFullYear(),a.getMonth()+1,1);const dn=Math.round((b-a)/864e5);
   for(let i=0;i<dn;i++)bk.push([new Date(a.getFullYear(),a.getMonth(),i+1).getTime(),new Date(a.getFullYear(),a.getMonth(),i+2).getTime(),(i==0||(i+1)%5==0)?i+1+'':'','']);
   return{a:a.getTime(),b:b.getTime(),bk,label:`${a.getFullYear()}年${a.getMonth()+1}月`};
@@ -401,7 +994,7 @@ function matSummaryList(pm,tot,ls){
   if(!pm.length)return '';
   return `<div class="mlist">${pm.map(([id,o])=>{
     const m=mat(id),pct=tot?Math.round(o.s/tot*100):0,cnt=ls.filter(l=>l.mid==id).length;
-    return `<div class="mitem">${cover(m)}<div class="mitem-main"><div class="mitem-top"><b>${esc(m?m.title:'削除済み')}</b><span>${hm(o.s)}</span></div><div class="mitem-bar"><i style="width:${Math.max(2,pct)}%;background:${col(m)}"></i></div><div class="mitem-sub">${pct}% ／ ${cnt}回${o.a?' ／ '+o.a+(m?m.unit:''):''}</div></div></div>`;
+    return `<div class="mitem">${cover(m)}<div class="mitem-main"><div class="mitem-top"><b>${esc(m?m.title:'削除済み')}${m&&m.arc?' <span class="arc-tag">完了</span>':''}</b><span>${hm(o.s)}</span></div><div class="mitem-bar"><i style="width:${Math.max(2,pct)}%;background:${col(m)}"></i></div><div class="mitem-sub">${pct}% ／ ${cnt}回${o.a?' ／ '+o.a+(m?m.unit:''):''}</div></div></div>`;
   }).join('')}</div>`;
 }
 function monthSummaryList(){
@@ -425,17 +1018,28 @@ function bars(v,lb,hi){const mx=Math.max(...v,1);return `<div class="chart" styl
 function perMat(ls){const p={};ls.forEach(l=>{const o=p[l.mid]=p[l.mid]||{s:0,a:0,f:[]};o.s+=l.sec;if(l.amt!=null)o.a+=l.amt;if(l.focus)o.f.push(l.focus)});return Object.entries(p).sort((x,y)=>y[1].s-x[1].s)}
 const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):'-';
 
+function statMatFilterOptions(){
+  const act=activeMats(),arc=arcMats();
+  let html='<option value="all">すべての教材</option>';
+  if(act.length){
+    html+=`<optgroup label="進行中の教材">${act.map(m=>`<option value="${m.id}" ${fmat==m.id?'selected':''}>${m.fav?'★ ':''}${esc(m.title)}</option>`).join('')}</optgroup>`;
+  }
+  if(arc.length){
+    html+=`<optgroup label="アーカイブ済み（完了）">${arc.map(m=>`<option value="${m.id}" ${fmat==m.id?'selected':''}>📦 ${esc(m.title)}</option>`).join('')}</optgroup>`;
+  }
+  return html;
+}
+
 function vStat(){
   if(mode!=='day'&&mode!=='week'&&mode!=='month')mode='day';
   let r=range(),ls=filterLogs(inR(r.a,r.b));
-  /* 現在の期間に記録が0件で過去に記録がある場合は最新記録のある期間へ自動ジャンプボタンを表示 */
   const hasAny=S.logs.length>0;
   const pmAll=perMat(inR(r.a,r.b)),pm=perMat(ls),tot=sm(ls),matOrder=pmAll.map(x=>x[0]);
   const H=hours(ls),hx=Math.max(...H),hi=hx>0?H.indexOf(hx):-1;let acc=0;
   const gr=pm.map(([id,o])=>{const f=acc/tot*100;acc+=o.s;return `${col(mat(id))} ${f}% ${acc/tot*100}%`}).join(',');
   return `<div class="card"><div class="seg"><button class="${mode==='day'?'on':''}" onclick="mode='day';off=0;if(!inR(range().a,range().b).length)jumpLatest();ptxt='';render()">日（週内）</button><button class="${mode==='week'?'on':''}" onclick="mode='week';off=0;if(!inR(range().a,range().b).length)jumpLatest();ptxt='';render()">週（7週）</button><button class="${mode==='month'?'on':''}" onclick="mode='month';off=0;if(!inR(range().a,range().b).length)jumpLatest();ptxt='';render()">月</button></div>
 <div class="nv"><button class="g" onclick="off--;ptxt='';render()">‹</button><b>${r.label}</b><button class="g" onclick="off++;ptxt='';render()" ${off>=0?'disabled style="opacity:.3"':''}>›</button></div>
-<select style="margin-bottom:8px" onchange="fmat=this.value;render()"><option value="all">すべての教材</option>${S.mats.map(m=>`<option value="${m.id}" ${fmat==m.id?'selected':''}>${esc(m.title)}</option>`).join('')}</select>
+<select style="margin-bottom:8px" onchange="fmat=this.value;render()">${statMatFilterOptions()}</select>
 <div class="row" style="align-items:baseline;justify-content:space-between"><div>${mode==='month'?`<div class="sub" style="margin-bottom:2px">${r.label}の合計</div>`:''}<div class="big">${hmFull(tot)}</div><div class="sub">平均 ${hm(tot/r.bk.length)} ／ 連続 ${streak()}日</div></div>${!tot&&hasAny?`<button class="g" style="flex:none;padding:6px 10px;font-size:12px" onclick="jumpLatest();render()">最新記録の期間へ移動</button>`:''}</div>
 ${stackedBars(r.bk,matOrder)}
 ${mode==='month'?monthSummaryList():matSummaryList(pm,tot,ls)}</div>
@@ -455,7 +1059,7 @@ const q=['全体を振り返り、良かった点と課題を指摘してくだ�
 ptxt=`あなたは学習コーチです。以下は私の勉強記録（${r.label}）の集計です。${q}\n\n【概要】合計${hm(tot)}、平均${hm(tot/r.bk.length)}、連続学習${streak()}日\n【期間別】${day}\n【教材別】\n${mt}\n【教材の進捗】\n${progLines()}\n【時間帯別の上位】${hr}\n【時間帯別の平均集中度（直近60日）】${fLines()}\n【メモ】\n${memo}\n\n【お願い】1.良かった点 2.課題 3.次の1週間の具体的な行動（3つ）を、簡潔に。`;
 render();const t=$('pt');if(t){t.select();try{navigator.clipboard.writeText(ptxt).then(()=>toast('コピーしました')).catch(()=>document.execCommand('copy'))}catch(e){try{document.execCommand('copy')}catch(_){}}}}
 
-/* 設定・教材管理（教材別カラー＆表紙画像・4列書棚グリッド） */
+/* 設定・教材管理（教材別カラー＆表紙画像・お気に入り・アーカイブ・4列書棚グリッド） */
 function vAddMatForm(){
   const defCol=md.color||COL[S.mats.length%COL.length];
   return `<div style="background:var(--bg);border-radius:12px;padding:12px;margin-bottom:14px">
@@ -468,7 +1072,10 @@ function vAddMatForm(){
   <div style="flex:1">
     <select style="background:var(--card)" onchange="md.sid=this.value;render()"><option value="">科目を選択</option>${S.subs.map(s=>`<option value="${s.id}" ${md.sid==s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select>
     <input style="background:var(--card)" placeholder="教材名" value="${esc(md.title)}" oninput="md.title=this.value">
-    <select style="margin-bottom:6px;background:var(--card)" onchange="md.unit=this.value">${['ページ','問','章','単元','回'].map(u=>`<option ${md.unit==u?'selected':''}>${u}</option>`).join('')}</select>
+    <div class="row" style="margin-bottom:6px">
+      <select style="margin:0;background:var(--card)" onchange="md.unit=this.value">${['ページ','問','章','単元','回'].map(u=>`<option ${md.unit==u?'selected':''}>${u}</option>`).join('')}</select>
+      <button type="button" class="g" style="flex:none;padding:8px 12px;background:var(--card);color:${md.fav?'#d97706':'var(--sub)'};border-color:${md.fav?'#f59e0b':'var(--bd)'}" onclick="md.fav=!md.fav;render()">${md.fav?'★ お気に入り':'☆ お気に入り'}</button>
+    </div>
     <div class="row" style="flex-wrap:wrap;gap:6px">${COL.map(x=>`<button type="button" class="sw ${x==defCol?'on':''}" style="background:${x}" onclick="md.color='${x}';render()"></button>`).join('')}</div>
   </div>
 </div>
@@ -477,15 +1084,29 @@ ${md.msg?`<div class="sub" style="margin-bottom:8px">${esc(md.msg)}</div>`:''}
 }
 function vMat(){
   const openAdd=showAddMat||!S.mats.length;
-  return `${vPe()}<div class="card"><h2><span>教材一覧</span><button class="g" style="padding:5px 10px;font-size:12px" onclick="showAddMat=!showAddMat;render()">${openAdd?'閉じる':'＋ 教材を追加'}</button></h2>${openAdd?vAddMatForm():''}${vSubs()}</div>
+  const arcCnt=arcMats().length;
+  return `${vPe()}<div class="card"><h2><span>教材一覧</span><div style="display:flex;gap:6px">${arcCnt?`<button class="g" style="padding:5px 9px;font-size:11px" onclick="showArcMat=!showArcMat;render()">${showArcMat?`アーカイブを隠す`:`📦 アーカイブ済み（${arcCnt}）`}</button>`:''}<button class="g" style="padding:5px 10px;font-size:12px" onclick="showAddMat=!showAddMat;render()">${openAdd?'閉じる':'＋ 教材を追加'}</button></div></h2>${openAdd?vAddMatForm():''}${vSubs()}</div>
 ${vImp()}<div class="card"><h2>バックアップ（JSON）</h2><div class="row"><button class="g" onclick="expFile()">書き出し（保存・共有）</button><button class="g" onclick="$('jf').click()">ファイルから復元</button></div><input id="jf" type="file" accept=".json,application/json" style="display:none" onchange="impFile2(this)"><div class="row" style="margin-top:8px"><button class="g" onclick="exp()">テキストをコピー</button><button class="g" onclick="imp()">貼り付けて復元</button></div><textarea id="bk" placeholder="バックアップデータの表示・貼り付け欄" style="margin-top:8px"></textarea></div>`}
 
-const EM=['📘','📖','✏️','🧪','🔢','🌏','🎵','🎨','💻','🗣️','📝','🏃'];
 function setSub(id,k,v){const s=sub(id);if(!s)return;s[k]=v;save();if(k!=='goal'&&k!=='name')render()}
-function vSubs(){if(!S.subs.length)return '<div class="sub">まだありません</div>';return S.subs.map(s=>{const ms=S.mats.filter(m=>m.sid==s.id),c=scol(s);
-return `<div class="dh" style="align-items:center;margin-top:14px"><span class="cat-tag"><i style="background:${c}"></i>${esc(s.name)}</span><button class="g" style="padding:3px 8px;font-size:11px" onclick="es=es==${s.id}?null:${s.id};render()">科目編集</button></div>`
-+(es==s.id?`<div style="margin:6px 0 10px;padding:10px;background:var(--bg);border-radius:10px"><div class="row" style="align-items:center;margin-bottom:8px"><div class="sub" style="flex:none;width:70px">科目名</div><input value="${esc(s.name)}" oninput="setSub(${s.id},'name',this.value)" style="margin:0;background:var(--card)"></div><div class="row" style="align-items:center;margin-bottom:8px"><div class="sub" style="flex:none;width:70px">週目標(h)</div><input type="number" min="0" step="0.5" value="${s.goal||''}" placeholder="なし" oninput="setSub(${s.id},'goal',+this.value||0)" style="margin:0;background:var(--card)"></div><div class="row" style="flex-wrap:wrap;gap:6px">${COL.map(x=>`<button class="sw ${x==c?'on':''}" style="background:${x}" onclick="setSub(${s.id},'color','${x}')"></button>`).join('')}</div>${ms.length?'':`<button class="g" style="width:100%;margin-top:10px;color:#e5484d;border-color:#e5484d44;padding:8px" onclick="reqDelSub(${s.id})">この科目を削除</button>`}</div>`:'')
-+`<div class="gr" style="margin-top:6px">${ms.map(m=>`<div class="bk">${cover(m,'cv-btn',`onclick="pickPhoto(${m.id})"`)}<b>${esc(m.title)}</b>${pg(m)}<button class="g" style="width:100%;padding:4px;font-size:11px;margin-top:4px" onclick="pe=${m.id};render();scrollTo(0,0)">設定</button></div>`).join('')}</div>`}).join('')}
+function vSubs(){
+  if(!S.subs.length)return '<div class="sub">まだありません</div>';
+  return S.subs.map(s=>{
+    const allSubMats=S.mats.filter(m=>m.sid==s.id);
+    const ms=allSubMats.filter(m=>showArcMat||!m.arc);
+    const hidArc=allSubMats.filter(m=>m.arc).length;
+    const c=scol(s);
+    return `<div class="dh" style="align-items:center;margin-top:14px"><span class="cat-tag"><i style="background:${c}"></i>${esc(s.name)}${!showArcMat&&hidArc?`<span class="sub" style="font-weight:400;font-size:11px">（完了${hidArc}）</span>`:''}</span><button class="g" style="padding:3px 8px;font-size:11px" onclick="es=es==${s.id}?null:${s.id};render()">科目編集</button></div>`
+    +(es==s.id?`<div style="margin:6px 0 10px;padding:10px;background:var(--bg);border-radius:10px"><div class="row" style="align-items:center;margin-bottom:8px"><div class="sub" style="flex:none;width:70px">科目名</div><input value="${esc(s.name)}" oninput="setSub(${s.id},'name',this.value)" style="margin:0;background:var(--card)"></div><div class="row" style="align-items:center;margin-bottom:8px"><div class="sub" style="flex:none;width:70px">週目標(h)</div><input type="number" min="0" step="0.5" value="${s.goal||''}" placeholder="なし" oninput="setSub(${s.id},'goal',+this.value||0)" style="margin:0;background:var(--card)"></div><div class="row" style="flex-wrap:wrap;gap:6px">${COL.map(x=>`<button class="sw ${x==c?'on':''}" style="background:${x}" onclick="setSub(${s.id},'color','${x}')"></button>`).join('')}</div>${allSubMats.length?'':`<button class="g" style="width:100%;margin-top:10px;color:#e5484d;border-color:#e5484d44;padding:8px" onclick="reqDelSub(${s.id})">この科目を削除</button>`}</div>`:'')
+    +(ms.length?`<div class="gr" style="margin-top:6px">${ms.map(m=>`<div class="bk ${m.arc?'arc':''}">
+      <button type="button" class="fav-pin ${m.fav?'on':''}" title="お気に入り" onclick="toggleFav(${m.id},event)">${m.fav?'★':'☆'}</button>
+      ${cover(m,'cv-btn',`onclick="pickPhoto(${m.id})"`)}
+      <b>${m.arc?'<span class="arc-tag">完了</span> ':''}${esc(m.title)}</b>
+      ${pg(m)}
+      <button class="g" style="width:100%;padding:4px;font-size:11px;margin-top:4px" onclick="pe=${m.id};render();scrollTo(0,0)">設定</button>
+    </div>`).join('')}</div>`:`<div class="sub" style="margin:6px 0">${hidArc?`進行中の教材なし（アーカイブ済み ${hidArc}冊）`:'教材がありません'}</div>`);
+  }).join('');
+}
 
 /* CSV・表インポート */
 const GK=[['d','日付',/日付|日|date|day/i],['s','開始時刻',/開始|start/i],['m','教材',/教材|参考書|タイトル|名称|material|title|name/i],['t','時間',/時間|分|duration|time/i],['a','量',/量|ページ|問|amount|page/i],['n','メモ',/メモ|コメント|memo|comment|note/i],['c','科目',/カテゴリ|科目|category|subject/i]];
@@ -499,9 +1120,9 @@ R.slice(1).forEach(r=>{const dt=pd(has('d')?r[M.d]:'',has('s')?r[M.s]:''),sec=pd
 const ex=new Set(S.logs.map(l=>l.mid+'|'+(l.nt?dk(l.t):l.t)+'|'+l.sec));
 im.out=ok.filter(o=>{const m=S.mats.find(x=>x.title==(o.title||'（教材不明）'));return !(m&&ex.has(m.id+'|'+(o.nt?dk(o.t):o.t)+'|'+o.sec))});im.dup=ok.length-im.out.length;im.bad=bad}
 function doImport(){if(!im.out||!im.out.length)return;
-im.out.forEach((o,i)=>{const title=o.title||'（教材不明）';let m=S.mats.find(x=>x.title==title);if(!m){const cn=o.cat||(title.includes('高校入試')?'カテゴリなし':'教員免許認定試験');let sb=S.subs.find(s=>s.name==cn);if(!sb){sb={id:uid(),name:cn,color:COL[S.subs.length%COL.length],icon:'📘'};S.subs.push(sb)}m={id:uid(),sid:sb.id,title,unit:'ページ',cover:'',color:COL[S.mats.length%COL.length]};S.mats.push(m)}
+im.out.forEach((o,i)=>{const title=o.title||'（教材不明）';let m=S.mats.find(x=>x.title==title);if(!m){const cn=o.cat||(title.includes('高校入試')?'カテゴリなし':'教員免許認定試験');let sb=S.subs.find(s=>s.name==cn);if(!sb){sb={id:uid(),name:cn,color:COL[S.subs.length%COL.length],icon:'📘'};S.subs.push(sb)}m={id:uid(),sid:sb.id,title,unit:'ページ',cover:'',color:COL[S.mats.length%COL.length],fav:false,arc:false};S.mats.push(m)}
 S.logs.push({id:uid()+i,mid:m.id,t:o.t,sec:o.sec,amt:o.amt,to:null,fr:null,focus:0,memo:o.memo,nt:o.nt?1:0})});
-if(!S.sel&&S.mats.length)S.sel=S.mats[0].id;const n=im.out.length;im={text:'',rows:null,map:{},unit:'60',out:null,done:n+'件を取り込みました'};save();render()}
+ensureValidSel();const n=im.out.length;im={text:'',rows:null,map:{},unit:'60',out:null,done:n+'件を取り込みました'};save();render()}
 function vImp(){const R=im.rows,h=R?R[0]:[];
 return `<div class="card"><h2>データ取り込み（CSV・TSV）</h2>${im.done?`<div style="margin-bottom:8px"><b>${im.done}</b></div>`:''}
 <button class="g" onclick="$('imf').click()" style="width:100%;margin-bottom:8px">ファイルを選択</button><input id="imf" type="file" accept=".csv,.tsv,.txt,text/*" style="display:none" onchange="impFile(this)">
@@ -511,7 +1132,7 @@ ${R?`<div class="sub" style="margin-bottom:4px">列の割り当て</div>${GK.map
 <div class="row" style="align-items:center"><div class="sub" style="flex:none;width:110px">時間の単位</div><select onchange="im.unit=this.value;prep();render()">${[['60','分'],['1','秒'],['3600','時間']].map(([v,l])=>`<option value="${v}" ${im.unit==v?'selected':''}>${l}</option>`).join('')}</select></div>
 ${im.out?`<div style="margin:8px 0">対象 <b>${im.out.length}件</b>${im.dup?`（重複スキップ ${im.dup}件）`:''}${im.bad?`／除外 ${im.bad}件`:''}</div><div class="sub" style="margin-bottom:8px">${im.out.slice(0,3).map(o=>`${dk(o.t)} ${esc(o.title||'（教材不明）')} ${hm(o.sec)}`).join('<br>')}</div><button onclick="doImport()" style="width:100%" ${im.out.length?'':'disabled'}>取り込む</button>`:''}`:''}</div>`}
 
-/* 教材編集・色変更・進捗計算 */
+/* 教材編集・色変更・お気に入り・アーカイブ・進捗計算 */
 function rg(l){if(l.to==null)return null;const b=l.to,a=l.fr!=null?l.fr:(l.amt!=null?b-l.amt+1:b);return[Math.min(a,b),Math.max(a,b)]}
 function cov(m){const a0=m.from||1,b0=m.total;if(!b0||b0<a0)return null;const n=b0-a0+1,d=new Array(n+2).fill(0),t14=Date.now()-14*864e5;let amt=0,sec=0,rec=0;
 S.logs.forEach(l=>{if(l.mid!=m.id)return;if(l.amt!=null){amt+=l.amt;if(l.amt>0)sec+=l.sec;if(l.t>=t14)rec+=l.amt}const r=rg(l);if(r){const s=Math.max(r[0],a0)-a0,e=Math.min(r[1],b0)-a0;if(e>=s){d[s]++;d[e+1]--}}});
@@ -519,7 +1140,9 @@ const c=[];let x=0,c1=0,c2=0;for(let i=0;i<n;i++){x+=d[i];c.push(x);if(x>=1)c1++
 function pgi(m){const c=cov(m);if(!c)return null;const L=m.laps||1,rem=Math.max(0,c.n*L-c.amt),ls=S.logs.filter(l=>l.mid==m.id),first=ls.length?Math.min(...ls.map(l=>l.t)):Date.now(),span=Math.max(1,Math.min(14,(Date.now()-first)/864e5)),pace=c.rec/span,mpu=c.amt>0?c.sec/c.amt:0,dl=m.dl?Math.ceil((new Date(m.dl+'T23:59:59')-Date.now())/864e5):null;return{...c,L,rem,pace,mpu,dl}}
 function pg(m){const c=cov(m);return `<div class="sub" style="font-size:10px"><b style="color:${col(m)}">●</b> ${hm(sm(S.logs.filter(l=>l.mid==m.id)))}${c?' '+Math.round(c.c1/c.n*100)+'%':''}</div>`}
 function setM(k,v){const m=mat(pe);if(!m)return;if(k==='title'||k==='unit'||k==='dl'||k==='color')m[k]=v;else if(k==='sid')m.sid=+v;else m[k]=v===''?null:+v;save();if(k==='color'||k==='sid')render()}
-function vPe(){const m=pe&&mat(pe);if(!m)return '';const mc=col(m);return `<div class="card"><h2>教材の編集・色・進捗設定</h2>
+function vPe(){
+  const m=pe&&mat(pe);if(!m)return '';const mc=col(m);
+  return `<div class="card"><h2><span>教材の編集・色・進捗設定</span><button class="g" style="padding:4px 10px;font-size:12px" onclick="pe=null;render()">閉じる</button></h2>
 <div class="row" style="align-items:flex-start;gap:12px;margin-bottom:8px">
   <div style="flex:none;text-align:center">
     ${cover(m,'cv-btn',`onclick="pickPhoto(${m.id})" style="width:68px;height:90px;border-radius:8px;background:${mc}"` )}
@@ -528,24 +1151,35 @@ function vPe(){const m=pe&&mat(pe);if(!m)return '';const mc=col(m);return `<div 
   <div style="flex:1">
     <select onchange="setM('sid',this.value)">${S.subs.map(s=>`<option value="${s.id}" ${m.sid==s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select>
     <input value="${esc(m.title)}" placeholder="教材名" oninput="setM('title',this.value)">
-    <select style="margin-bottom:6px" onchange="setM('unit',this.value)">${['ページ','問','章','単元','回'].map(u=>`<option ${m.unit==u?'selected':''}>${u}</option>`).join('')}</select>
+    <div class="row" style="margin-bottom:6px">
+      <select style="margin:0" onchange="setM('unit',this.value)">${['ページ','問','章','単元','回'].map(u=>`<option ${m.unit==u?'selected':''}>${u}</option>`).join('')}</select>
+      <button type="button" class="g" style="flex:none;padding:8px 12px;color:${m.fav?'#d97706':'var(--sub)'};border-color:${m.fav?'#f59e0b':'var(--bd)'}" onclick="toggleFav(${m.id},event)">${m.fav?'★ お気に入り中':'☆ お気に入り'}</button>
+    </div>
     <div class="row" style="flex-wrap:wrap;gap:6px">${COL.map(x=>`<button type="button" class="sw ${x==mc?'on':''}" style="background:${x}" onclick="setM('color','${x}')"></button>`).join('')}</div>
   </div>
 </div>
-<div class="row"><div><div class="sub">開始位置</div><input type="number" min="0" value="${m.from??''}" placeholder="1" oninput="setM('from',this.value)"></div><div><div class="sub">終了位置（全体量）</div><input type="number" min="1" value="${m.total??''}" oninput="setM('total',this.value)"></div></div>
+<div class="row"><div><div class="sub">開始位置</div><input type="number" min="0" value="${m.from??''}" placeholder="1" oninput="setM('from',this.value)"></div><div><div class="sub">終了位置（全体量）</div><input type="number" min="1" value="${m.total??''}" placeholder="例: 250" oninput="setM('total',this.value)"></div></div>
 <div class="row"><div><div class="sub">目標周回数</div><input type="number" min="1" step="1" value="${m.laps??1}" oninput="setM('laps',this.value)"></div><div><div class="sub">目標期限</div><input type="date" value="${m.dl||''}" oninput="setM('dl',this.value)"></div></div>
-<button onclick="pe=null;render()" style="width:100%">完了</button><button class="g" style="width:100%;margin-top:8px;color:#e5484d;border-color:#e5484d44" onclick="reqDelMat(${m.id})">この教材を削除</button></div>`}
+<button onclick="pe=null;render()" style="width:100%">保存して完了</button>
+<div class="row" style="margin-top:8px">
+  <button type="button" class="g" onclick="toggleArc(${m.id},event)">${m.arc?'📂 アーカイブを解除（進行中に戻す）':'📦 この教材をアーカイブ（完了）にする'}</button>
+  <button type="button" class="g" style="flex:none;color:#e5484d;border-color:#e5484d44" onclick="reqDelMat(${m.id})">削除</button>
+</div></div>`;
+}
 
-function prog(){const L=S.mats.filter(m=>m.total).map(m=>[m,pgi(m)]).filter(x=>x[1]);
-if(!L.length)return '';
-return `<div class="card"><h2>教材の進捗</h2>${L.map(([m,p])=>{const nb=Math.min(p.n,40);let st='';for(let k=0;k<nb;k++){const a=Math.floor(k*p.n/nb),b=Math.floor((k+1)*p.n/nb),w=Math.max(1,b-a);let c1=0,c2=0;for(let i=a;i<b;i++){if(p.c[i]>=1)c1++;if(p.c[i]>=2)c2++}const f=c1/w,g=c2/w>=.5;st+=`<i style="background:${f<.05?'var(--bd)':g?'#059669':col(m)};${f>=.05&&!g?'opacity:'+(.35+.65*f):''}"></i>`}
+function prog(){
+  const allWithTotal=S.mats.filter(m=>m.total).map(m=>[m,pgi(m)]).filter(x=>x[1]);
+  if(!allWithTotal.length)return '';
+  const arcWithTotal=allWithTotal.filter(([m])=>m.arc);
+  const L=allWithTotal.filter(([m])=>showArcProg||!m.arc);
+  return `<div class="card"><h2><span>教材の進捗</span>${arcWithTotal.length?`<button class="g" style="padding:3px 8px;font-size:11px" onclick="showArcProg=!showArcProg;render()">${showArcProg?'完了分を隠す':`完了分も表示（${arcWithTotal.length}）`}</button>`:''}</h2>${L.length?L.map(([m,p])=>{const nb=Math.min(p.n,40);let st='';for(let k=0;k<nb;k++){const a=Math.floor(k*p.n/nb),b=Math.floor((k+1)*p.n/nb),w=Math.max(1,b-a);let c1=0,c2=0;for(let i=a;i<b;i++){if(p.c[i]>=1)c1++;if(p.c[i]>=2)c2++}const f=c1/w,g=c2/w>=.5;st+=`<i style="background:${f<.05?'var(--bd)':g?'#059669':col(m)};${f>=.05&&!g?'opacity:'+(.35+.65*f):''}"></i>`}
 const fin=p.pace>0?new Date(Date.now()+p.rem/p.pace*864e5):null,ok=p.pace*Math.max(0,p.dl)>=p.rem;
-return `<div style="margin:12px 0 16px"><div class="row" style="align-items:center;gap:10px">${cover(m)}<div style="flex:1"><div><b>${esc(m.title)}</b> <span class="sub">${m.from||1}〜${m.total}${m.unit}</span></div><div class="st">${st}</div>
+return `<div style="margin:12px 0 16px"><div class="row" style="align-items:center;gap:10px">${cover(m)}<div style="flex:1"><div><b>${esc(m.title)}</b>${m.arc?' <span class="arc-tag">完了</span>':''} <span class="sub">${m.from||1}〜${m.total}${m.unit}</span></div><div class="st">${st}</div>
 <div class="sub">カバー率 <b>${Math.round(p.c1/p.n*100)}%</b>（2周以上 ${Math.round(p.c2/p.n*100)}%）／ ${p.laps.toFixed(1)}周（目標${p.L}周）</div>
 <div class="sub">残り ${Math.round(p.rem)}${m.unit}${p.mpu?'（約'+hm(p.rem*p.mpu)+'）':''}${p.pace>0?' ／ '+p.pace.toFixed(1)+m.unit+'/日 → '+(p.rem<=0?'達成済み':'予測 '+(fin.getMonth()+1)+'/'+fin.getDate()):''}</div>
-${m.dl&&p.rem>0?`<div class="sub" style="font-weight:600;color:${ok?'#059669':'#e5484d'}">期限 ${m.dl.slice(5).replace('-','/')}（残${Math.max(0,p.dl)}日）：1日 ${(p.rem/Math.max(1,p.dl)).toFixed(1)}${m.unit}必要${ok?'（順調）':'（ペース不足）'}</div>`:''}</div></div></div>`}).join('')}</div>`}
+${!m.arc&&m.dl&&p.rem>0?`<div class="sub" style="font-weight:600;color:${ok?'#059669':'#e5484d'}">期限 ${m.dl.slice(5).replace('-','/')}（残${Math.max(0,p.dl)}日）：1日 ${(p.rem/Math.max(1,p.dl)).toFixed(1)}${m.unit}必要${ok?'（順調）':'（ペース不足）'}</div>`:''}</div></div></div>`}).join(''):'<div class="sub">進行中の範囲設定済み教材はありません</div>'}</div>`}
 
-function progLines(){const o=S.mats.filter(m=>m.total).map(m=>[m,pgi(m)]).filter(x=>x[1]);if(!o.length)return 'なし（範囲未設定）';return o.map(([m,p])=>`・${m.title}：範囲${m.from||1}〜${m.total}${m.unit}、カバー率${Math.round(p.c1/p.n*100)}%、${p.laps.toFixed(1)}周（目標${p.L}周）、残り${Math.round(p.rem)}${m.unit}${p.pace>0?'、最近'+p.pace.toFixed(1)+m.unit+'/日':''}${m.dl?'、期限'+m.dl:''}`).join('\n')}
+function progLines(){const o=activeMats().filter(m=>m.total).map(m=>[m,pgi(m)]).filter(x=>x[1]);if(!o.length)return 'なし（範囲未設定）';return o.map(([m,p])=>`・${m.title}：範囲${m.from||1}〜${m.total}${m.unit}、カバー率${Math.round(p.c1/p.n*100)}%、${p.laps.toFixed(1)}周（目標${p.L}周）、残り${Math.round(p.rem)}${m.unit}${p.pace>0?'、最近'+p.pace.toFixed(1)+m.unit+'/日':''}${m.dl?'、期限'+m.dl:''}`).join('\n')}
 function fb(){const t0=Date.now()-60*864e5,B=Array.from({length:8},()=>[]);S.logs.forEach(l=>{if(l.focus&&!l.nt&&l.t>=t0)B[Math.floor(new Date(l.t).getHours()/3)].push(l.focus)});return B}
 const av2=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
 function fLines(){return fb().map((a,i)=>a.length?`${i*3}〜${i*3+3}時:平均${av2(a).toFixed(1)}（${a.length}回）`:'').filter(Boolean).join('、')||'集中度の記録なし'}
@@ -553,7 +1187,7 @@ function fcard(){const B=fb(),av=B.map(av2);if(!B.some(a=>a.length))return '';le
 return `<div class="card"><h2>時間帯ごとの集中度（直近60日）</h2>${bi>=0?`<div><b>高集中時間帯：${bi*3}〜${bi*3+3}時（平均 ${bv.toFixed(1)} / 3）</b></div>`:''}${bars(av,av.map((_,i)=>i*3+'' ),bi)}</div>`}
 
 function heat(){const m=dayMap(),n=new Date();n.setHours(0,0,0,0);const st=wk(-14),dg=DG()*60,mn=Math.max(1,MN())*60,tk=dk(n);let h='',days=0;
-const mStart=new Date(n.getFullYear(),n.getMonth(),1),mEnd=new Date(n.getFullYear(),n.getMonth()+1,0);
+const mStart=new Date(n.getFullYear(),n.getMonth(),1);
 for(let d=new Date(mStart);d<=n;d.setDate(d.getDate()+1)){if((m[dk(d)]||0)>0)days++}
 for(let i=0;i<105;i++){const d=new Date(st);d.setDate(st.getDate()+i);const k=dk(d),s=m[k]||0,o=s==0?0:s<mn?.3:s<dg*.6?.55:s<dg?.8:1;
 h+=`<i style="${d>n?'visibility:hidden':`background:${o?'var(--ac)':'var(--bd)'};opacity:${o||1}`}${k==tk?';outline:2px solid var(--tx)':''}"></i>`}
@@ -573,19 +1207,19 @@ function askDel(title,msg,fn){cfmFn=fn;const c=$('cfm');c.innerHTML=`<div class=
 function closeCfm(){cfmFn=null;$('cfm').style.display='none'}
 function doCfm(){const f=cfmFn;closeCfm();if(f)del(f)}
 function reqDelLog(id){const l=S.logs.find(x=>x.id==id);if(!l)return;const m=mat(l.mid);askDel('記録を削除しますか？',`${dk(l.t)}「${m?m.title:'削除済み'}」（${hm(l.sec)}）を削除します。`,()=>{S.logs=S.logs.filter(x=>x.id!=id);ed=null;save();render()})}
-function reqDelMat(id){const m=mat(id);if(!m)return;const cnt=S.logs.filter(l=>l.mid==id).length;askDel('教材を削除しますか？',`「${m.title}」${cnt?`と関連する学習記録${cnt}件`:''}を削除します。`,()=>delMat(id))}
+function reqDelMat(id){const m=mat(id);if(!m)return;const cnt=S.logs.filter(l=>l.mid==id).length;askDel('教材を完全に削除しますか？',`「${m.title}」${cnt?`と関連する学習記録${cnt}件`:''}を完全に削除します（過去の記録を残したい場合は「アーカイブ」をご利用ください）。`,()=>delMat(id))}
 function reqDelSub(id){const s=sub(id);if(!s)return;askDel('科目を削除しますか？',`「${s.name}」を削除します。`,()=>{if(es==id)es=null;S.subs=S.subs.filter(x=>x.id!=id);save();render()})}
 function toast(m,a){clearTimeout(ut);const t=$('toast');t.innerHTML=`${m}${a?` <button onclick="undo()">${a}</button>`:''}`;t.style.display='flex';ut=setTimeout(()=>t.style.display='none',6000)}
-function undo(){if(!us)return;const o=JSON.parse(us);S.subs=o.subs;S.mats=o.mats;S.logs=o.logs;us=null;save();$('toast').style.display='none';render()}
+function undo(){if(!us)return;const o=JSON.parse(us);S.subs=o.subs;S.mats=o.mats;S.logs=o.logs;us=null;ensureValidSel();save();$('toast').style.display='none';render()}
 function addSub(){const n=md.ns.trim();if(!n)return;const s={id:uid(),name:n,color:COL[S.subs.length%COL.length],icon:'📘'};S.subs.push(s);md.sid=s.id;md.ns='';save();render()}
 function addMat(){if(!md.title.trim()){md.msg='教材名を入力してください';render();return}
 if(!md.sid){if(!S.subs.length)S.subs.push({id:uid(),name:'教員免許認定試験',color:COL[0],icon:'📘'});md.sid=S.subs[0].id}
-const nm={id:uid(),sid:+md.sid,title:md.title.trim(),unit:md.unit,cover:md.cover,color:md.color||COL[S.mats.length%COL.length]};
-S.mats.push(nm);if(!S.sel)S.sel=nm.id;md={sid:md.sid,title:'',unit:md.unit,cover:'',color:'',msg:'',ns:''};showAddMat=false;save();toast('教材を追加しました');render()}
-function delMat(id){if(pe==id)pe=null;S.mats=S.mats.filter(m=>m.id!=id);S.logs=S.logs.filter(l=>l.mid!=id);if(S.timer&&S.timer.mid==id){S.timer=null;unwake()}if(S.sel==id)S.sel=S.mats[0]?S.mats[0].id:null;save();render()}
+const nm={id:uid(),sid:+md.sid,title:md.title.trim(),unit:md.unit,cover:md.cover,color:md.color||COL[S.mats.length%COL.length],fav:Boolean(md.fav),arc:false};
+S.mats.push(nm);if(!S.sel||nm.fav)S.sel=nm.id;ensureValidSel();md={sid:md.sid,title:'',unit:md.unit,cover:'',color:'',fav:false,msg:'',ns:''};showAddMat=false;save();toast('教材を追加しました');render()}
+function delMat(id){if(pe==id)pe=null;S.mats=S.mats.filter(m=>m.id!=id);S.logs=S.logs.filter(l=>l.mid!=id);if(S.timer&&S.timer.mid==id){S.timer=null;unwake()}ensureValidSel();save();render()}
 
 /* ハイブリッドJSONバックアップ */
-function bkData(){return JSON.stringify({app:'studylog',v:4,exportedAt:new Date().toISOString(),subs:S.subs,mats:S.mats,logs:S.logs,goal:S.goal,dgoal:S.dgoal,minDay:S.minDay,cel:S.cel})}
+function bkData(){return JSON.stringify({app:'studylog',v:5,exportedAt:new Date().toISOString(),subs:S.subs,mats:S.mats,logs:S.logs,goal:S.goal,dgoal:S.dgoal,minDay:S.minDay,cel:S.cel,pet:S.pet,homeOrder:S.homeOrder,tmrFavOnly:S.tmrFavOnly})}
 function exp(){const d=bkData(),t=$('bk');if(t){t.value=d;t.select()}try{navigator.clipboard.writeText(d).then(()=>toast('コピーしました')).catch(()=>document.execCommand('copy'))}catch(e){try{document.execCommand('copy')}catch(_){}}}
 async function expFile(){
   const data=bkData(),t=$('bk');if(t)t.value=data;
@@ -610,7 +1244,7 @@ function imp(){
     const o=JSON.parse($('bk').value);
     if(!Array.isArray(o.logs)||!Array.isArray(o.mats))throw 0;
     unwake();
-    S={subs:o.subs||[],mats:o.mats,logs:o.logs,goal:o.goal||14,dgoal:o.dgoal??60,minDay:o.minDay??15,cel:o.cel||{},timer:null,sel:o.mats[0]?o.mats[0].id:null};
+    S={subs:o.subs||[],mats:o.mats,logs:o.logs,goal:o.goal||14,dgoal:o.dgoal??60,minDay:o.minDay??15,cel:o.cel||{},pet:o.pet||null,homeOrder:o.homeOrder||null,tmrFavOnly:o.tmrFavOnly??true,timer:null,sel:o.mats[0]?o.mats[0].id:null};
     ensureColors();
     save();toast('バックアップを復元しました');render();
   }catch(e){toast('データの形式が正しくありません')}
@@ -624,9 +1258,12 @@ function render(){
   $('v').innerHTML={home:vHome,log:vLog,stat:vStat,mat:vMat}[tab]();
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
   tick();
+  if($('rm_pet'))roomStart();else{clearTimeout(roomTmr);cancelAnimationFrame(bubRaf)}
 }
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  const prev=tab;
   tab=b.dataset.t;
+  if(tab==='home'&&prev!=='home')showBubble(4500);
   if(tab==='stat'&&!inR(range().a,range().b).length)jumpLatest();
   render();
 });
