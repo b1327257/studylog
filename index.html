@@ -237,13 +237,17 @@ const inR=(a,b)=>S.logs.filter(l=>l.t>=a&&l.t<b),sm=ls=>ls.reduce((x,l)=>x+l.sec
 /* IndexedDB & ストレージ管理 */
 function openDB(){
   return new Promise(resolve=>{
+    let done=false;
+    const fin=v=>{if(!done){done=true;resolve(v)}};
+    const tmr=setTimeout(()=>fin(null),1500);
     try{
-      if(!window.indexedDB){resolve(null);return}
+      if(!window.indexedDB){clearTimeout(tmr);fin(null);return}
       const req=indexedDB.open(DB_NAME,1);
       req.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains(DB_STORE))db.createObjectStore(DB_STORE)};
-      req.onsuccess=e=>resolve(e.target.result);
-      req.onerror=()=>resolve(null);
-    }catch(e){resolve(null)}
+      req.onsuccess=e=>{clearTimeout(tmr);fin(e.target.result)};
+      req.onerror=()=>{clearTimeout(tmr);fin(null)};
+      req.onblocked=()=>{clearTimeout(tmr);fin(null)};
+    }catch(e){clearTimeout(tmr);fin(null)}
   });
 }
 function ensureColors(){
@@ -263,26 +267,31 @@ function ensureColors(){
 async function initStorage(){
   let legacy=null;
   try{const raw=localStorage.getItem(K);if(raw)legacy=JSON.parse(raw)}catch(e){}
-  dbRef=await openDB();
-  if(dbRef){
-    const saved=await new Promise(res=>{
-      try{
-        const tx=dbRef.transaction(DB_STORE,'readonly'),rq=tx.objectStore(DB_STORE).get('main');
-        rq.onsuccess=()=>res(rq.result||null);rq.onerror=()=>res(null);
-      }catch(e){res(null)}
-    });
-    if(saved&&Array.isArray(saved.mats)){
-      S={...S,...saved};
-    }else if(legacy&&Array.isArray(legacy.mats)){
-      S={...S,...legacy};
-    }
-  }else if(legacy){
+  if(legacy&&Array.isArray(legacy.mats)){
     S={...S,...legacy};
   }
   ensureColors();
+  showBubble(4500);
+  render();
+  dbRef=await openDB();
+  if(dbRef){
+    const saved=await new Promise(res=>{
+      let done=false;
+      const fin=v=>{if(!done){done=true;res(v)}};
+      const tmr=setTimeout(()=>fin(null),1500);
+      try{
+        const tx=dbRef.transaction(DB_STORE,'readonly'),rq=tx.objectStore(DB_STORE).get('main');
+        rq.onsuccess=()=>{clearTimeout(tmr);fin(rq.result||null)};
+        rq.onerror=()=>{clearTimeout(tmr);fin(null)};
+      }catch(e){clearTimeout(tmr);fin(null)}
+    });
+    if(saved&&Array.isArray(saved.mats)){
+      S={...S,...saved};
+      ensureColors();
+    }
+  }
   save();
   if(S.timer&&S.timer.at)wake();
-  showBubble(4500);
   render();
 }
 function save(){
@@ -515,7 +524,7 @@ function petType(){
 function topSubInfo(){
   const by={};
   S.logs.forEach(l=>{const m=mat(l.mid);if(!m)return;const s=sub(m.sid),k=s?'s'+s.id:'m'+m.id;(by[k]=by[k]||{sec:0,name:s?s.name:m.title}).sec+=l.sec});
-  const a=Object.values(by).sort((x,y)=>y[1].sec-x[1].sec);return a[0]||null;
+  const a=Object.values(by).sort((x,y)=>y.sec-x.sec);return a[0]||null;
 }
 const subCat=n=>/教|心理|免許|資格|福祉|看護|医/.test(n)?'edu':/社|歴|史|地|公民|政|経|法/.test(n)?'soc':/数|算|理|化|物|生物|情報|統計|科学|math|sci/i.test(n)?'sci':/国|語|英|文|読|言|古|漢|eng/i.test(n)?'lang':null;
 function petOpt(){const sj=topSubInfo();return{mood:petMood(),type:petType(),cat:sj?subCat(sj.name):null}}
@@ -1251,14 +1260,18 @@ function imp(){
 }
 
 function render(){
-  const sh=S.timer&&tab!=='home',mi=$('mini');
-  if(sh){const m=mat(S.timer.mid);mi.innerHTML=`<div><b>${m?esc(m.title):''}</b><span id="mclk">${clk(el())}</span></div><button onclick="toggle()">${S.timer.at?'⏸':'▶'}</button><button class="r" onclick="finish()">終了</button>`}
-  mi.style.display=sh?'flex':'none';
-  document.body.style.paddingTop=sh?'78px':'12px';
-  $('v').innerHTML={home:vHome,log:vLog,stat:vStat,mat:vMat}[tab]();
-  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
-  tick();
-  if($('rm_pet'))roomStart();else{clearTimeout(roomTmr);cancelAnimationFrame(bubRaf)}
+  try{
+    const sh=S.timer&&tab!=='home',mi=$('mini');
+    if(sh){const m=mat(S.timer.mid);mi.innerHTML=`<div><b>${m?esc(m.title):''}</b><span id="mclk">${clk(el())}</span></div><button onclick="toggle()">${S.timer.at?'⏸':'▶'}</button><button class="r" onclick="finish()">終了</button>`}
+    mi.style.display=sh?'flex':'none';
+    document.body.style.paddingTop=sh?'78px':'12px';
+    $('v').innerHTML={home:vHome,log:vLog,stat:vStat,mat:vMat}[tab]();
+    document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
+    tick();
+    if($('rm_pet'))roomStart();else{clearTimeout(roomTmr);cancelAnimationFrame(bubRaf)}
+  }catch(err){
+    $('v').innerHTML=`<div class="card"><h2>表示エラー</h2><div class="sub">${esc(err&&err.message||err)}</div></div>`;
+  }
 }
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
   const prev=tab;
