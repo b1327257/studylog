@@ -787,7 +787,10 @@ function srsMainCurveSVG(todayStr){
 function srsMiniCurveHTML(card){
   const todayStr=srsToday(),info=srsStabEl(card,todayStr),rNow=srsEstR(card,todayStr);
   const hist=Array.isArray(card.reviewHistory)?card.reviewHistory.slice():[];
-  if(!hist.length&&card.lastReviewedAt)hist.push({date:srsToday(new Date(card.lastReviewedAt)),grade:card.lastScore||(card.interval>0?3:1),interval:card.interval||0});
+  const createdDate=card.createdAt?srsToday(new Date(card.createdAt)):null;
+  if(!hist.length&&card.lastReviewedAt)hist.push({date:srsToday(new Date(card.lastReviewedAt)),grade:card.lastScore||(card.interval>0?3:1),interval:card.interval||1});
+  if(!hist.length&&createdDate)hist.push({date:createdDate,grade:3,interval:1});
+  else if(hist.length&&createdDate&&createdDate<hist[0].date&&!hist[0].isInitial)hist.unshift({date:createdDate,grade:3,interval:1,isInitial:true});
   let cursor=0,segs=[];
   hist.forEach((h,i)=>{
     const nx=hist[i+1],span=nx?Math.max(.5,srsDiffDays(nx.date,h.date)):Math.max(0,srsDiffDays(todayStr,h.date));
@@ -1375,9 +1378,20 @@ async function srsRate(g){
   }
   SRS.hist.push({idx:SRS.idx,snap:JSON.parse(JSON.stringify(c)),req:g===1,buried});
   if(g===1)SRS.queue.push(c);
+  const prevLastAt=c.lastReviewedAt,prevScore=c.lastScore,prevIv=c.interval,prevRep=c.repetition,prevEf=c.efactor;
   const u=srsCalcSched(c,g,t,true);
   if(!Array.isArray(c.reviewHistory))c.reviewHistory=[];
-  if(!c.firstLearnedDate)c.firstLearnedDate=t;
+  if(!c.reviewHistory.length){
+    const cDate=c.createdAt?srsToday(new Date(c.createdAt)):null;
+    const pDate=prevLastAt?srsToday(new Date(prevLastAt)):null;
+    if(cDate&&(!pDate||cDate<pDate)&&cDate<t){
+      c.reviewHistory.push({date:cDate,timestamp:c.createdAt,grade:3,interval:1,repetition:0,efactor:2.5,isInitial:true});
+    }
+    if(pDate&&pDate<t){
+      c.reviewHistory.push({date:pDate,timestamp:prevLastAt,grade:prevScore||(prevIv>0?3:1),interval:prevIv||1,repetition:prevRep||0,efactor:prevEf||2.5});
+    }
+  }
+  if(!c.firstLearnedDate)c.firstLearnedDate=(c.reviewHistory.length?c.reviewHistory[0].date:t);
   Object.assign(c,u);
   c.reviewHistory.push({date:t,timestamp:u.lastReviewedAt,grade:g,interval:u.interval,repetition:u.repetition,efactor:u.efactor});
   if(c.reviewHistory.length>20)c.reviewHistory=c.reviewHistory.slice(-20);
