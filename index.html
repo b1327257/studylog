@@ -2041,6 +2041,7 @@ function render(){
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
   const prev=tab;tab=b.dataset.t;
   if(tab!=='log')ed=null;
+  if(tab!=='srs'||prev==='srs')srsSubTab='due';
   if(tab==='home'&&prev!=='home')showBubble(4500);
   if(tab==='stat'&&!inR(range().a,range().b).length)jumpLatest();
   render();
