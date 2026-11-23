@@ -196,6 +196,19 @@ textarea{min-height:100px;font-size:13.5px;line-height:1.55}
 .rev-rb.r3{background:var(--bl-soft);color:var(--bl);border-color:rgba(2,132,199,.3)}
 .rev-rb.r4{background:var(--ac-soft);color:var(--ac);border-color:rgba(5,150,105,.3)}
 
+/* 画像マスク（Image Occlusion） */
+.occ-stage{position:relative;width:100%;border-radius:12px;overflow:hidden;border:1px solid var(--bd);background:#111;touch-action:none;user-select:none;-webkit-user-select:none}
+.occ-stage img{display:block;width:100%;height:auto;pointer-events:none;-webkit-user-drag:none}
+.occ-box{position:absolute;border-radius:4px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;line-height:1;transition:background .18s,border-color .18s,opacity .18s}
+.occ-box.ed{background:rgba(245,158,11,.78);border:2px solid #d97706;color:#fff;cursor:pointer}
+.occ-box.ed.sel{background:rgba(220,38,38,.82);border:2px solid #fff;box-shadow:0 0 0 2px #dc2626}
+.occ-box.draw{background:rgba(5,150,105,.42);border:2px dashed #10b981;pointer-events:none}
+.occ-box.tgt{background:#f59e0b;border:2px solid #fff;color:#fff;box-shadow:0 2px 8px rgba(245,158,11,.5);cursor:pointer;font-size:13px}
+.occ-box.oth{background:#475569;border:1.5px solid rgba(255,255,255,.35);color:transparent}
+.occ-box.rev-tgt{background:rgba(16,185,129,.12);border:2.5px solid #10b981;color:transparent;box-shadow:0 0 0 2px rgba(16,185,129,.28)}
+.occ-box.rev-oth{background:rgba(71,85,105,.82);border:1px solid rgba(255,255,255,.25);color:transparent}
+.occ-box.rev-oth.peek{background:rgba(71,85,105,.08);border:1px dashed rgba(148,163,184,.55)}
+
 /* ライトボックス */
 #srsLb{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.92);display:none;flex-direction:column}
 #srsLb.on{display:flex}
@@ -351,7 +364,7 @@ let im={text:'',rows:null,map:{},unit:'60',out:null,done:''};
 let lbZoom=false;
 
 function srsNewDraft(){return{id:'d_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,6),frontText:'',backText:'',frontImages:[],backImages:[]}}
-let SRS={cards:[],tags:[],dueOrder:'shuffle',curveMode:'sawtooth',initTiming:'today',selTag:'',drafts:[srsNewDraft()],activeDraft:0,q:'',fTag:'all',fStat:'all',sort:'nextReviewAsc',editId:null,editFImgs:[],editBImgs:[],queue:[],idx:0,hist:[],ansShown:false,sessionStart:null,sessionCount:0};
+let SRS={cards:[],tags:[],media:{},dueOrder:'shuffle',curveMode:'sawtooth',initTiming:'today',selTag:'',regMode:'normal',occ:{img:'',rects:[],sel:-1,title:'',memo:''},drafts:[srsNewDraft()],activeDraft:0,q:'',fTag:'all',fStat:'all',sort:'nextReviewAsc',editId:null,editFImgs:[],editBImgs:[],queue:[],idx:0,hist:[],ansShown:false,peekAll:false,batchLimit:0,batchDone:0,batchPause:false,sessionStart:null,sessionCount:0};
 
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const p2=n=>String(n).padStart(2,'0'),clk=s=>{s=Math.floor(s);return p2(s/3600|0)+':'+p2((s%3600)/60|0)+':'+p2(s%60)};
@@ -411,7 +424,7 @@ function openSrsDB(){
   return new Promise(resolve=>{
     try{
       if(!window.indexedDB){resolve(null);return}
-      const req=indexedDB.open(SRS_DB_NAME,1);
+      const req=indexedDB.open(SRS_DB_NAME,2);
       req.onupgradeneeded=e=>{
         const db=e.target.result;
         if(!db.objectStoreNames.contains('cards')){
@@ -420,10 +433,42 @@ function openSrsDB(){
           st.createIndex('tag','tag',{unique:false});
         }
         if(!db.objectStoreNames.contains('settings'))db.createObjectStore('settings',{keyPath:'key'});
+        if(!db.objectStoreNames.contains('media'))db.createObjectStore('media',{keyPath:'id'});
       };
       req.onsuccess=e=>resolve(e.target.result);
       req.onerror=()=>resolve(null);
     }catch(e){resolve(null)}
+  });
+}
+function srsDbGetAllMedia(){
+  return new Promise(res=>{
+    if(!srsDbRef||!srsDbRef.objectStoreNames.contains('media')){res({});return}
+    try{
+      const rq=srsDbRef.transaction('media','readonly').objectStore('media').getAll();
+      rq.onsuccess=()=>{const m={};(rq.result||[]).forEach(x=>{if(x&&x.id)m[x.id]=x.dataUrl});res(m)};
+      rq.onerror=()=>res({});
+    }catch(e){res({})}
+  });
+}
+function srsDbPutMedia(id,dataUrl){
+  SRS.media[id]=dataUrl;
+  if(!srsDbRef||!srsDbRef.objectStoreNames.contains('media'))return Promise.resolve();
+  return new Promise(res=>{
+    try{const tx=srsDbRef.transaction('media','readwrite');tx.objectStore('media').put({id,dataUrl});tx.oncomplete=()=>res();tx.onerror=()=>res()}catch(e){res()}
+  });
+}
+function srsDbDelMedia(id){
+  delete SRS.media[id];
+  if(!srsDbRef||!srsDbRef.objectStoreNames.contains('media'))return Promise.resolve();
+  return new Promise(res=>{
+    try{const tx=srsDbRef.transaction('media','readwrite');tx.objectStore('media').delete(id);tx.oncomplete=()=>res();tx.onerror=()=>res()}catch(e){res()}
+  });
+}
+function srsDbClearMedia(){
+  SRS.media={};
+  if(!srsDbRef||!srsDbRef.objectStoreNames.contains('media'))return Promise.resolve();
+  return new Promise(res=>{
+    try{const tx=srsDbRef.transaction('media','readwrite');tx.objectStore('media').clear();tx.oncomplete=()=>res();tx.onerror=()=>res()}catch(e){res()}
   });
 }
 function srsDbGetAll(){
@@ -516,13 +561,15 @@ async function initStorage(){
   }else if(legacy){
     S={...S,...legacy};
   }
-  const [cards,tags,ord,tim]=await Promise.all([
+  const [cards,tags,ord,tim,media]=await Promise.all([
     srsDbGetAll(),
     srsDbGetSet('tags',[]),
     srsDbGetSet('dueOrderMode','shuffle'),
-    srsDbGetSet('regInitialTiming','today')
+    srsDbGetSet('regInitialTiming','today'),
+    srsDbGetAllMedia()
   ]);
   SRS.cards=Array.isArray(cards)?cards:[];
+  SRS.media=media||{};
   SRS.tags=Array.isArray(tags)?tags.filter(t=>t&&t!==SRS_UNTAG):[];
   SRS.dueOrder=ord||'shuffle';
   SRS.initTiming=tim||'today';
@@ -548,7 +595,7 @@ function srsAddDays(ds,n){const p=ds.split('-');const d=new Date(+p[0],+p[1]-1,+
 function srsDiffDays(a,b){const pa=a.split('-'),pb=b.split('-');return Math.round((new Date(+pa[0],+pa[1]-1,+pa[2])-new Date(+pb[0],+pb[1]-1,+pb[2]))/864e5)}
 function srsGenId(){return 'card_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9)}
 
-function srsCalcSched(card,grade,todayStr){
+function srsCalcSched(card,grade,todayStr,applyFuzz){
   const prevRep=Number(card.repetition||0),prevIv=Number(card.interval||0),prevEF=Number(card.efactor||2.5);
   const lapsedToday=Boolean(card.lapsedTodayDate&&card.lapsedTodayDate===todayStr);
   const savedPre=Number(card.preLapseInterval||0);
@@ -583,6 +630,12 @@ function srsCalcSched(card,grade,todayStr){
     newRep=prevRep+1;nextPre=0;
   }
   newEF=Math.round(newEF*100)/100;
+  if(applyFuzz&&grade!==1&&newIv>=3){
+    const d=newIv<7?1:Math.max(1,Math.min(7,Math.round(newIv*0.1)));
+    const minIv=Math.max(2,grade>=3&&prevIv>=2?prevIv+1:2);
+    const fuzz=Math.floor(Math.random()*(d*2+1))-d;
+    newIv=Math.max(minIv,newIv+fuzz);
+  }
   if(newIv>365)newIv=365;
   return{repetition:newRep,interval:newIv,efactor:newEF,nextReviewDate:grade===1?todayStr:srsAddDays(todayStr,newIv),lastScore:grade,lastReviewedAt:new Date().toISOString(),preLapseInterval:nextPre,lapsedTodayDate:nextLapsed};
 }
@@ -802,14 +855,15 @@ function vSrsDue(t,due){
   return `<div class="card"><div class="srs-hero">
     <div class="sub">今日の復習</div>
     <div class="srs-big">${due.length}<small>件</small></div>
-    <div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+    <div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:10px">
       <span class="srs-pill">本日予定 ${ex}件</span>
       <span class="srs-pill ${over?'over':''}">期限超過 ${over}件</span>
     </div>
+    ${over>=3?`<div style="margin-bottom:12px"><button class="g" style="padding:6px 12px;font-size:12px;border-radius:999px" onclick="srsAskSpread()">⚖ 期限超過（${over}件）を数日に自動ならし</button></div>`:''}
     <div class="seg" style="margin-bottom:4px">
       ${[['shuffle','シャッフル'],['efAsc','定着度順'],['dueAsc','予定日順']].map(([k,lb])=>`<button class="${SRS.dueOrder===k?'on':''}" onclick="srsSetOrder('${k}')">${lb}</button>`).join('')}
     </div>
-    <button class="srs-start" onclick="srsStartDue()" ${due.length?'':'disabled'}>${due.length?`復習をスタート（${due.length}件）`:'本日の復習は完了しています'}</button>
+    ${due.length>5?`<div class="row" style="margin-top:12px"><button class="srs-start" style="margin-top:0;flex:1.4" onclick="srsStartDue(5)">まず5問だけスタート</button><button class="g" style="flex:.8;border-radius:14px;font-size:13.5px" onclick="srsStartDue(0)">全${due.length}件</button></div>`:`<button class="srs-start" onclick="srsStartDue(0)" ${due.length?'':'disabled'}>${due.length?`復習をスタート（${due.length}件）`:'本日の復習は完了しています'}</button>`}
   </div></div>
   <div class="card"><h2><span>記憶定着の進捗</span><span>全 ${total} 枚</span></h2>
     <div class="srs-donut-row">
@@ -847,18 +901,14 @@ function srsSetOrder(o){SRS.dueOrder=o;srsDbSetSet('dueOrderMode',o);render()}
 function srsPickTag(i){SRS.selTag=SRS.tags[i]||'';render()}
 function srsSetTiming(tm2){SRS.initTiming=tm2;srsDbSetSet('regInitialTiming',tm2);render()}
 
-/* カード登録画面 */
+/* カード登録画面（通常カード / 画像マスク） */
 function vSrsReg(){
-  const drHTML=SRS.drafts.map((d,i)=>`<div class="srs-draft">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <b style="font-size:13px">カード #${i+1}</b>
-      ${SRS.drafts.length>1?`<button class="g" style="padding:3px 9px;font-size:11px" onclick="srsDelDraft(${i})">✕ 削除</button>`:''}
-    </div>
-    ${vSrsSide(d,i,'f','表面（問題）')}${vSrsSide(d,i,'b','裏面（解答・解説）')}
-  </div>`).join('');
-  return `${drHTML}
-  <button class="g" style="width:100%;border-style:dashed;margin-bottom:12px" onclick="srsAddDraft()">＋ 次のカード枠を追加</button>
-  <div class="card">
+  const isOcc=SRS.regMode==='occ';
+  const modeBar=`<div class="seg" style="margin-bottom:12px">
+    <button class="${!isOcc?'on':''}" onclick="SRS.regMode='normal';render()">通常カード</button>
+    <button class="${isOcc?'on':''}" onclick="SRS.regMode='occ';render()">🖼 画像マスク（一括穴埋め）</button>
+  </div>`;
+  const tagCard=(saveBtnHtml)=>`<div class="card">
     <h2><span>科目タグ</span><button class="g" style="padding:4px 10px;font-size:11.5px" onclick="srsOpenTagMod()">＋ タグ追加</button></h2>
     <div class="srs-tags">
       <button class="srs-tagbtn ${!SRS.selTag?'on':''}" onclick="SRS.selTag='';render()">なし（未分類）</button>
@@ -871,7 +921,124 @@ function vSrsReg(){
         <button class="${SRS.initTiming==='tomorrow'?'on':''}" onclick="srsSetTiming('tomorrow')">明日</button>
       </div>
     </div>
-    <button style="width:100%;margin-top:14px;padding:13px" onclick="srsSaveDrafts()">${SRS.drafts.length>1?`カードをまとめて保存（${SRS.drafts.length}枚）`:'カードを保存'}</button>
+    ${saveBtnHtml}
+  </div>`;
+  if(isOcc){
+    const o=SRS.occ,n=o.rects.length;
+    return `${modeBar}<div class="card" ondragover="event.preventDefault()" ondrop="occDropImg(event)">
+      <h2><span>画像マスク作成</span><span class="sub">${n?`${n}か所 → ${n}枚自動生成`:'ドラッグで隠す'}</span></h2>
+      <div class="srs-mbar" style="margin-bottom:10px">
+        <label class="srs-mbtn">📷 カメラ<input type="file" accept="image/*" capture="environment" style="display:none" onchange="occPickImg(this.files);this.value=''"></label>
+        <label class="srs-mbtn">🖼 写真<input type="file" accept="image/*" style="display:none" onchange="occPickImg(this.files);this.value=''"></label>
+        <button type="button" class="srs-mbtn" onclick="occClipPaste()">📋 貼付</button>
+      </div>
+      ${o.img?`<div id="occStg" class="occ-stage">
+        <img src="${o.img}" alt="">
+        ${o.rects.map((r,idx)=>`<div class="occ-box ed ${o.sel===idx?'sel':''}" data-oi="${idx}" style="left:${(r.x*100).toFixed(2)}%;top:${(r.y*100).toFixed(2)}%;width:${(r.w*100).toFixed(2)}%;height:${(r.h*100).toFixed(2)}%">${idx+1}</div>`).join('')}
+        <div id="occDrag" class="occ-box draw" style="display:none"></div>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+        <button type="button" class="g" style="padding:6px 10px;font-size:12px" onclick="occUndo()" ${n?'':'disabled'}>↩ 1つ戻す</button>
+        ${o.sel>=0?`<button type="button" class="r" style="padding:6px 10px;font-size:12px" onclick="occDelSel()">✕ 選択#${o.sel+1}を削除</button>`:''}
+        <button type="button" class="g" style="padding:6px 10px;font-size:12px;margin-left:auto" onclick="occClearRects()" ${n?'':'disabled'}>マスク全消去</button>
+      </div>`:`<div class="sub" style="text-align:center;padding:28px 10px;background:var(--surf);border-radius:12px;border:1px dashed var(--bd)">表や図解の画像を選ぶと、指でなぞって複数の穴埋めマスクを作れます</div>`}
+      <input style="margin-top:10px" placeholder="タイトル・問題メモ（任意）" value="${esc(o.title)}" oninput="SRS.occ.title=this.value">
+      <input style="margin-bottom:0" placeholder="解説メモ（解答表示時に表示・任意）" value="${esc(o.memo)}" oninput="SRS.occ.memo=this.value">
+    </div>
+    ${tagCard(`<button style="width:100%;margin-top:14px;padding:13px" onclick="occSaveCards()" ${o.img&&n?'':'disabled'}>${n?`マスクごとに ${n}枚のカードを作成`:'画像とマスクを追加してください'}</button>`)}`;
+  }
+  const drHTML=SRS.drafts.map((d,i)=>`<div class="srs-draft">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <b style="font-size:13px">カード #${i+1}</b>
+      ${SRS.drafts.length>1?`<button class="g" style="padding:3px 9px;font-size:11px" onclick="srsDelDraft(${i})">✕ 削除</button>`:''}
+    </div>
+    ${vSrsSide(d,i,'f','表面（問題）')}${vSrsSide(d,i,'b','裏面（解答・解説）')}
+  </div>`).join('');
+  return `${modeBar}${drHTML}
+  <button class="g" style="width:100%;border-style:dashed;margin-bottom:12px" onclick="srsAddDraft()">＋ 次のカード枠を追加</button>
+  ${tagCard(`<button style="width:100%;margin-top:14px;padding:13px" onclick="srsSaveDrafts()">${SRS.drafts.length>1?`カードをまとめて保存（${SRS.drafts.length}枚）`:'カードを保存'}</button>`)}`;
+}
+
+/* 画像マスク描画＆保存ロジック */
+function occPickImg(files){
+  const f=files&&[...files].find(x=>x&&x.type&&x.type.startsWith('image/'));if(!f)return;
+  srsCompressImg(f).then(u=>{SRS.occ.img=u;SRS.occ.rects=[];SRS.occ.sel=-1;render();toast('画像を読み込みました')}).catch(()=>toast('画像の処理に失敗しました'));
+}
+function occDropImg(e){e.preventDefault();if(e.dataTransfer&&e.dataTransfer.files)occPickImg(e.dataTransfer.files)}
+async function occClipPaste(){
+  if(navigator.clipboard&&navigator.clipboard.read){
+    try{
+      const items=await navigator.clipboard.read();
+      for(const it of items){const t=it.types.find(x=>x.startsWith('image/'));if(t){occPickImg([await it.getType(t)]);return}}
+      toast('クリップボードに画像がありません');return;
+    }catch(_){}
+  }
+  toast('画像を選択するか、キーボードでペーストしてください');
+}
+function occUndo(){if(SRS.occ.rects.length){SRS.occ.rects.pop();SRS.occ.sel=-1;render()}}
+function occDelSel(){if(SRS.occ.sel>=0){SRS.occ.rects.splice(SRS.occ.sel,1);SRS.occ.sel=-1;render()}}
+function occClearRects(){SRS.occ.rects=[];SRS.occ.sel=-1;render()}
+function occBindStage(){
+  const stg=$('occStg');if(!stg)return;
+  let dragging=false,sx=0,sy=0,moved=false;
+  const dragEl=$('occDrag');
+  const pos=e=>{const r=stg.getBoundingClientRect();return{x:Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),y:Math.max(0,Math.min(1,(e.clientY-r.top)/r.height))}};
+  stg.onpointerdown=e=>{
+    const hit=e.target.closest('.occ-box.ed');
+    if(hit){
+      const idx=+hit.dataset.oi;
+      SRS.occ.sel=(SRS.occ.sel===idx)?-1:idx;
+      render();return;
+    }
+    e.preventDefault();stg.setPointerCapture(e.pointerId);
+    const p=pos(e);sx=p.x;sy=p.y;dragging=true;moved=false;
+    if(dragEl){dragEl.style.display='block';dragEl.style.left=(sx*100)+'%';dragEl.style.top=(sy*100)+'%';dragEl.style.width='0%';dragEl.style.height='0%'}
+  };
+  stg.onpointermove=e=>{
+    if(!dragging)return;
+    const p=pos(e),x=Math.min(sx,p.x),y=Math.min(sy,p.y),w=Math.abs(p.x-sx),h=Math.abs(p.y-sy);
+    if(w>0.015||h>0.015)moved=true;
+    if(dragEl){dragEl.style.left=(x*100)+'%';dragEl.style.top=(y*100)+'%';dragEl.style.width=(w*100)+'%';dragEl.style.height=(h*100)+'%'}
+  };
+  const end=e=>{
+    if(!dragging)return;dragging=false;
+    if(dragEl)dragEl.style.display='none';
+    const p=pos(e),x=Math.min(sx,p.x),y=Math.min(sy,p.y),w=Math.abs(p.x-sx),h=Math.abs(p.y-sy);
+    if(moved&&w>=0.025&&h>=0.02){
+      SRS.occ.rects.push({x:+x.toFixed(4),y:+y.toFixed(4),w:+w.toFixed(4),h:+h.toFixed(4)});
+      SRS.occ.sel=-1;render();
+    }
+  };
+  stg.onpointerup=end;stg.onpointercancel=end;
+}
+async function occSaveCards(){
+  const o=SRS.occ;
+  if(!o.img||!o.rects.length){toast('画像とマスクを追加してください');return}
+  const imgId='img_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
+  await srsDbPutMedia(imgId,o.img);
+  const tg=SRS.selTag||SRS_UNTAG,t=srsToday(),initD=SRS.initTiming==='today'?t:srsAddDays(t,1);
+  const rectsCopy=o.rects.map(r=>({x:r.x,y:r.y,w:r.w,h:r.h}));
+  const ft=(o.title||'').trim(),bt=(o.memo||'').trim();
+  for(let idx=0;idx<rectsCopy.length;idx++){
+    const card={id:srsGenId(),tag:tg,frontText:ft,frontImages:[],backText:bt,backImages:[],occlusion:{imgId,rects:rectsCopy,target:idx},createdAt:new Date().toISOString(),nextReviewDate:initD,interval:0,repetition:0,efactor:2.5,lastScore:null};
+    SRS.cards.push(card);await srsDbPut(card);
+  }
+  const n=rectsCopy.length;
+  SRS.occ={img:'',rects:[],sel:-1,title:'',memo:''};
+  toast(`画像マスクから ${n}枚のカードを作成しました`);
+  render();
+}
+function occStageHTML(occ,revealed,peekAll,clickable){
+  const src=SRS.media[occ.imgId]||'';
+  if(!src)return '<div class="sub">画像が見つかりません</div>';
+  return `<div class="occ-stage" style="touch-action:auto">
+    <img src="${src}" alt="">
+    ${occ.rects.map((r,i)=>{
+      const isT=i===occ.target;
+      const cls=revealed?(isT?'rev-tgt':'rev-oth'+(peekAll?' peek':'')):(isT?'tgt':'oth');
+      const act=(!revealed&&isT&&clickable)?' onclick="SRS.ansShown=true;srsRenderRev()"':'';
+      return `<div class="occ-box ${cls}"${act} style="left:${(r.x*100).toFixed(2)}%;top:${(r.y*100).toFixed(2)}%;width:${(r.w*100).toFixed(2)}%;height:${(r.h*100).toFixed(2)}%">${!revealed&&isT?'?':''}</div>`;
+    }).join('')}
   </div>`;
 }
 function vSrsSide(d,i,side,lbl){
@@ -997,12 +1164,12 @@ function vSrsList(t){
       const df=srsDiffDays(c.nextReviewDate,t);
       const cls=df<0?'over':df===0?'wn':(c.interval||0)>21?'ok':'';
       const dLbl=df<0?`期限超過(${Math.abs(df)}日)`:df===0?'今日復習':(c.interval||0)>21?`定着 ${c.nextReviewDate}`:`次回 ${c.nextReviewDate}`;
-      const th=(c.frontImages&&c.frontImages[0])||(c.backImages&&c.backImages[0]);
-      const sn=c.frontText?c.frontText.replace(/\s+/g,' '):`📷 画像問題（${(c.frontImages||[]).length}枚）`;
+      const th=(c.occlusion&&SRS.media[c.occlusion.imgId])||(c.frontImages&&c.frontImages[0])||(c.backImages&&c.backImages[0]);
+      const sn=c.frontText?c.frontText.replace(/\s+/g,' '):c.occlusion?`🖼 画像マスク #${c.occlusion.target+1}/${c.occlusion.rects.length}`:`📷 画像問題（${(c.frontImages||[]).length}枚）`;
       return `<div class="srs-li" onclick="srsOpenEdit('${c.id}')">
         ${th?`<img class="srs-li-img" src="${th}" alt="">`:`<div class="srs-li-no">テキスト</div>`}
         <div class="srs-li-b">
-          <div style="display:flex;gap:5px;flex-wrap:wrap"><span class="srs-pill bl">${esc(c.tag||SRS_UNTAG)}</span><span class="srs-pill ${cls}">${dLbl}</span></div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap"><span class="srs-pill bl">${esc(c.tag||SRS_UNTAG)}</span>${c.occlusion?`<span class="srs-pill wn">マスク ${c.occlusion.target+1}/${c.occlusion.rects.length}</span>`:''}<span class="srs-pill ${cls}">${dLbl}</span></div>
           <div class="srs-li-t">${esc(sn)}</div>
           <div class="sub" style="font-size:11px">間隔 ${c.interval||0}日 ／ 反復 ${c.repetition||0}回 ／ EF ${Number(c.efactor||2.5).toFixed(2)}</div>
         </div>
@@ -1033,7 +1200,9 @@ function srsRenderEditModal(){
       <button class="g" style="padding:5px 9px;font-size:11.5px" onclick="srsResetCard()">定着度を初期化</button>
     </div>
     ${srsMiniCurveHTML(c)}
-    <div style="margin-top:12px">
+    ${c.occlusion?`<div style="margin-top:12px"><div class="sub" style="font-weight:700;margin-bottom:4px">画像マスク（対象 #${c.occlusion.target+1} / ${c.occlusion.rects.length}）</div>${occStageHTML(c.occlusion,true,false,false)}</div>
+    <div style="margin-top:10px"><div class="sub" style="font-weight:700;margin-bottom:4px">タイトル・問題メモ</div><textarea id="se_ft" style="min-height:56px">${esc(c.frontText||'')}</textarea></div>
+    <div style="margin-top:8px"><div class="sub" style="font-weight:700;margin-bottom:4px">解説メモ</div><textarea id="se_bt" style="min-height:56px">${esc(c.backText||'')}</textarea></div>`:`<div style="margin-top:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span class="sub" style="font-weight:700">表面（問題）</span><div style="display:flex;gap:5px"><button class="g" style="padding:3px 8px;font-size:11px" onclick="srsClipPaste('edit','f')">📋 貼付</button><label class="g" style="padding:3px 8px;font-size:11px;border-radius:10px;cursor:pointer">＋ 画像<input type="file" accept="image/*" multiple style="display:none" onchange="srsPushImgs(this.files,SRS.editFImgs,srsRenderEditModal);this.value=''"></label></div></div>
       <textarea id="se_ft" onpaste="srsPasteEvt(event,'edit','f')" style="min-height:76px">${esc(c.frontText||'')}</textarea>
       <div class="srs-thumbs">${SRS.editFImgs.map((u,k)=>`<div class="srs-th"><img src="${u}" alt="" onclick="srsOpenLb(this.src)"><button type="button" class="srs-th-x" onclick="SRS.editFImgs.splice(${k},1);srsRenderEditModal()">×</button></div>`).join('')}</div>
@@ -1042,7 +1211,7 @@ function srsRenderEditModal(){
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span class="sub" style="font-weight:700">裏面（解答・解説）</span><div style="display:flex;gap:5px"><button class="g" style="padding:3px 8px;font-size:11px" onclick="srsClipPaste('edit','b')">📋 貼付</button><label class="g" style="padding:3px 8px;font-size:11px;border-radius:10px;cursor:pointer">＋ 画像<input type="file" accept="image/*" multiple style="display:none" onchange="srsPushImgs(this.files,SRS.editBImgs,srsRenderEditModal);this.value=''"></label></div></div>
       <textarea id="se_bt" onpaste="srsPasteEvt(event,'edit','b')" style="min-height:76px">${esc(c.backText||'')}</textarea>
       <div class="srs-thumbs">${SRS.editBImgs.map((u,k)=>`<div class="srs-th"><img src="${u}" alt="" onclick="srsOpenLb(this.src)"><button type="button" class="srs-th-x" onclick="SRS.editBImgs.splice(${k},1);srsRenderEditModal()">×</button></div>`).join('')}</div>
-    </div>
+    </div>`}
     <div class="row" style="margin-top:12px"><button class="g" style="color:var(--err)" onclick="srsReqDelCard()">削除</button><button onclick="srsSaveEdit()">変更を保存</button></div>
   </div>`;
 }
@@ -1055,26 +1224,63 @@ function srsResetCard(){
 async function srsSaveEdit(){
   const c=SRS.cards.find(x=>x.id===SRS.editId);if(!c)return;
   const ft=$('se_ft').value.trim(),bt=$('se_bt').value.trim();
-  if(!ft&&!SRS.editFImgs.length){toast('表面を入力してください');return}
-  if(!bt&&!SRS.editBImgs.length){toast('裏面を入力してください');return}
+  if(!c.occlusion){
+    if(!ft&&!SRS.editFImgs.length){toast('表面を入力してください');return}
+    if(!bt&&!SRS.editBImgs.length){toast('裏面を入力してください');return}
+    c.frontImages=[...SRS.editFImgs];c.backImages=[...SRS.editBImgs];
+  }
   c.tag=$('se_tg').value||SRS_UNTAG;c.nextReviewDate=$('se_dt').value||srsToday();
-  c.frontText=ft;c.backText=bt;c.frontImages=[...SRS.editFImgs];c.backImages=[...SRS.editBImgs];
+  c.frontText=ft;c.backText=bt;
   await srsDbPut(c);srsCloseEdit();toast('変更を保存しました');render();
 }
 function srsReqDelCard(){
   const id=SRS.editId;if(!id)return;
   askDel('カードを削除しますか？','このカードを削除します。',async()=>{
-    await srsDbDel(id);SRS.cards=SRS.cards.filter(x=>x.id!==id);srsCloseEdit();render();
+    const tgt=SRS.cards.find(x=>x.id===id);
+    await srsDbDel(id);SRS.cards=SRS.cards.filter(x=>x.id!==id);
+    if(tgt&&tgt.occlusion&&!SRS.cards.some(x=>x.occlusion&&x.occlusion.imgId===tgt.occlusion.imgId))await srsDbDelMedia(tgt.occlusion.imgId);
+    srsCloseEdit();render();
   });
 }
 
 /* 全画面復習オーバーレイ */
-function srsStartDue(){
+function srsStartDue(limit){
   const due=srsDueCards(srsToday());
   if(!due.length){toast('本日の復習はありません');return}
   SRS.queue=srsOrderQueue(due,SRS.dueOrder);
-  SRS.idx=0;SRS.hist=[];SRS.ansShown=false;SRS.sessionStart=Date.now();SRS.sessionCount=0;
+  SRS.idx=0;SRS.hist=[];SRS.ansShown=false;SRS.peekAll=false;
+  SRS.batchLimit=Number(limit)||0;SRS.batchDone=0;SRS.batchPause=false;
+  SRS.sessionStart=Date.now();SRS.sessionCount=0;
   $('srsRev').classList.add('on');srsRenderRev();
+}
+function srsContinueBatch(addN){
+  SRS.batchDone=0;
+  SRS.batchLimit=Number(addN)||0;
+  SRS.batchPause=false;
+  srsRenderRev();
+}
+function srsAskSpread(){
+  const t=srsToday(),over=srsDueCards(t).filter(c=>c.nextReviewDate<t);
+  if(!over.length){toast('期限超過のカードはありません');return}
+  const c=$('cfm');
+  c.innerHTML=`<div class="cm-box"><div class="cm-t">期限超過の自動ならし</div>
+    <div class="cm-m">期限超過の <b>${over.length}件</b> を、苦手なカードから優先して今日〜数日間に均等配分します（定着度データは維持されます）。</div>
+    <div class="row" style="margin-bottom:8px"><button onclick="srsSpreadOverdue(3)">3日間に配分</button><button onclick="srsSpreadOverdue(5)">5日間に配分</button></div>
+    <button class="g" style="width:100%" onclick="closeCfm()">キャンセル</button></div>`;
+  c.style.display='flex';
+}
+async function srsSpreadOverdue(days){
+  closeCfm();
+  const t=srsToday();
+  const over=SRS.cards.filter(c=>c.nextReviewDate<t).sort((a,b)=>(a.efactor||2.5)-(b.efactor||2.5)||(a.interval||0)-(b.interval||0));
+  if(!over.length)return;
+  for(let i=0;i<over.length;i++){
+    const dayOff=Math.floor(i*days/over.length);
+    over[i].nextReviewDate=srsAddDays(t,dayOff);
+    await srsDbPut(over[i]);
+  }
+  toast(`期限超過 ${over.length}件を${days}日間に均等配分しました`);
+  render();
 }
 function srsRenderRev(){
   const tot=SRS.queue.length;
@@ -1082,6 +1288,21 @@ function srsRenderRev(){
     $('srsRev').classList.remove('on');
     srsAutoLogSession();
     render();
+    return;
+  }
+  if(SRS.batchPause){
+    const rem=tot-SRS.idx;
+    $('srsRev').innerHTML=`<div class="rev-top"><button class="g" style="padding:6px 10px;font-size:12px" onclick="srsExitRev()">✕ 終了</button><div class="rev-prog"><i style="width:${Math.round(SRS.idx/tot*100)}%"></i></div><span class="sub" style="font-weight:700">${SRS.idx}/${tot}</span></div>
+    <div class="rev-body" style="display:flex;align-items:center;justify-content:center">
+      <div class="card" style="width:100%;text-align:center;padding:28px 20px">
+        <div style="font-size:44px;margin-bottom:6px">🎉</div>
+        <div class="big" style="margin-bottom:6px">${SRS.sessionCount}問クリア！</div>
+        <div class="sub" style="margin-bottom:20px">今日の残り：あと ${rem}件</div>
+        <button style="width:100%;padding:14px;font-size:15px;margin-bottom:8px" onclick="srsContinueBatch(5)">もう${Math.min(5,rem)}問つづける</button>
+        ${rem>5?`<button class="g" style="width:100%;padding:12px;margin-bottom:8px" onclick="srsContinueBatch(0)">残り${rem}件をすべてやる</button>`:''}
+        <button class="g" style="width:100%;padding:12px;color:var(--sub)" onclick="srsExitRev()">今日はここまで（ログに記録）</button>
+      </div>
+    </div>`;
     return;
   }
   const c=SRS.queue[SRS.idx],t=srsToday(),pct=Math.round(SRS.idx/tot*100);
@@ -1094,7 +1315,20 @@ function srsRenderRev(){
     <span class="sub" style="font-weight:700;font-variant-numeric:tabular-nums">${SRS.idx+1}/${tot}</span>
   </div>
   <div id="revSc" class="rev-body">
-    <div class="card">
+    ${c.occlusion?`<div class="card" style="${SRS.ansShown?'border-color:var(--ac)':''}">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:10px;padding-bottom:8px;border-bottom:0.5px solid var(--bd)">
+        <div style="display:flex;gap:5px;align-items:center"><span class="srs-pill ${SRS.ansShown?'ok':'wn'}">${SRS.ansShown?'解答表示中':'穴埋め問題'}</span><span class="srs-pill">${esc(c.tag||SRS_UNTAG)}</span></div>
+        <span class="sub" style="font-size:11px">${stL} ｜ #${c.occlusion.target+1}/${c.occlusion.rects.length}</span>
+      </div>
+      ${c.frontText?`<div style="font-size:13.5px;font-weight:600;margin-bottom:8px">${esc(c.frontText)}</div>`:''}
+      ${occStageHTML(c.occlusion,SRS.ansShown,SRS.peekAll,true)}
+      <div style="display:flex;gap:6px;margin-top:8px;justify-content:flex-end">
+        ${SRS.ansShown&&c.occlusion.rects.length>1?`<button class="g" style="padding:5px 10px;font-size:11.5px" onclick="SRS.peekAll=!SRS.peekAll;srsRenderRev()">${SRS.peekAll?'他のマスクを隠す':'他のマスクも見る'}</button>`:''}
+        ${SRS.media[c.occlusion.imgId]?`<button class="g" style="padding:5px 10px;font-size:11.5px" onclick="srsOpenLb(SRS.media['${c.occlusion.imgId}'])">🔍 原寸表示</button>`:''}
+      </div>
+      ${SRS.ansShown&&c.backText?`<div class="rev-txt" style="margin-top:10px;padding-top:10px;border-top:0.5px solid var(--bd);font-size:14.5px">${esc(c.backText)}</div>`:''}
+      ${SRS.ansShown?srsMiniCurveHTML(c):''}
+    </div>`:`<div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:10px;padding-bottom:8px;border-bottom:0.5px solid var(--bd)">
         <div style="display:flex;gap:6px;align-items:center"><span class="srs-pill bl">問題</span><span class="srs-pill">${esc(c.tag||SRS_UNTAG)}</span></div>
         <span class="sub" style="font-size:11px">${stL} ｜ 間隔${c.interval||0}日</span>
@@ -1107,7 +1341,7 @@ function srsRenderRev(){
       ${c.backText?`<div class="rev-txt">${esc(c.backText)}</div>`:''}
       <div class="rev-imgs">${(c.backImages||[]).map(u=>`<div class="rev-imgw"><img src="${u}" alt="" onclick="srsOpenLb(this.src)"></div>`).join('')}</div>
       ${srsMiniCurveHTML(c)}
-    </div>`:''}
+    </div>`:''}`}
   </div>
   <div class="rev-foot"><div class="rev-foot-in">
     ${SRS.ansShown?`<div class="rev-rates">
@@ -1121,9 +1355,27 @@ function srsRenderRev(){
 }
 async function srsRate(g){
   const c=SRS.queue[SRS.idx];if(!c)return;
-  SRS.hist.push({idx:SRS.idx,snap:JSON.parse(JSON.stringify(c)),req:g===1});
+  const t=srsToday(),tmr=srsAddDays(t,1);
+  const buried=[];
+  if(c.occlusion&&c.occlusion.imgId){
+    const imgId=c.occlusion.imgId;
+    for(const other of SRS.cards){
+      if(other.id!==c.id&&other.occlusion&&other.occlusion.imgId===imgId&&other.nextReviewDate<=t){
+        buried.push({id:other.id,prevDate:other.nextReviewDate});
+        other.nextReviewDate=tmr;
+        await srsDbPut(other);
+      }
+    }
+    if(buried.length){
+      const bIds=new Set(buried.map(x=>x.id));
+      const head=SRS.queue.slice(0,SRS.idx+1);
+      const tail=SRS.queue.slice(SRS.idx+1).filter(x=>!bIds.has(x.id));
+      SRS.queue=head.concat(tail);
+    }
+  }
+  SRS.hist.push({idx:SRS.idx,snap:JSON.parse(JSON.stringify(c)),req:g===1,buried});
   if(g===1)SRS.queue.push(c);
-  const t=srsToday(),u=srsCalcSched(c,g,t);
+  const u=srsCalcSched(c,g,t,true);
   if(!Array.isArray(c.reviewHistory))c.reviewHistory=[];
   if(!c.firstLearnedDate)c.firstLearnedDate=t;
   Object.assign(c,u);
@@ -1131,18 +1383,28 @@ async function srsRate(g){
   if(c.reviewHistory.length>20)c.reviewHistory=c.reviewHistory.slice(-20);
   await srsDbPut(c);
   SRS.sessionCount++;
-  SRS.idx++;SRS.ansShown=false;
+  SRS.idx++;SRS.ansShown=false;SRS.peekAll=false;
+  if(SRS.batchLimit>0&&SRS.idx<SRS.queue.length){
+    SRS.batchDone++;
+    if(SRS.batchDone>=SRS.batchLimit)SRS.batchPause=true;
+  }
   srsRenderRev();
 }
 async function srsUndoRev(){
   if(!SRS.hist.length)return;
   const h=SRS.hist.pop();
   if(h.req&&SRS.queue.length>h.idx+1)SRS.queue.pop();
+  if(Array.isArray(h.buried)&&h.buried.length){
+    for(const b of h.buried){
+      const o=SRS.cards.find(x=>x.id===b.id);
+      if(o){o.nextReviewDate=b.prevDate;await srsDbPut(o);SRS.queue.push(o)}
+    }
+  }
   const c=SRS.cards.find(x=>x.id===h.snap.id);
   if(c)Object.assign(c,h.snap);
   for(let i=0;i<SRS.queue.length;i++)if(SRS.queue[i].id===h.snap.id)SRS.queue[i]=c||h.snap;
   await srsDbPut(c||h.snap);
-  SRS.idx=h.idx;SRS.ansShown=false;SRS.sessionCount=Math.max(0,SRS.sessionCount-1);
+  SRS.idx=h.idx;SRS.ansShown=false;SRS.peekAll=false;SRS.batchPause=false;SRS.sessionCount=Math.max(0,SRS.sessionCount-1);
   srsRenderRev();
 }
 function srsExitRev(){
@@ -1433,7 +1695,7 @@ function vSrsHomeCard(){
         <div class="srs-home-cnt">${due.length}<small>件</small> ${over?`<span class="srs-pill over" style="vertical-align:middle">超過 ${over}</span>`:due.length===0&&SRS.cards.length?`<span class="srs-pill ok" style="vertical-align:middle">完了</span>`:''}</div>
       </div>
       <div style="display:flex;gap:6px">
-        ${due.length?`<button style="padding:10px 16px;font-size:13.5px" onclick="srsStartDue()">今すぐ復習</button>`:`<button class="g" style="padding:9px 13px;font-size:12.5px" onclick="tab='srs';srsSubTab='reg';render()">＋ カード登録</button>`}
+        ${due.length>5?`<button style="padding:10px 14px;font-size:13px" onclick="srsStartDue(5)">まず5問</button><button class="g" style="padding:10px 11px;font-size:12.5px" onclick="srsStartDue(0)">全${due.length}件</button>`:due.length?`<button style="padding:10px 16px;font-size:13.5px" onclick="srsStartDue(0)">今すぐ復習</button>`:`<button class="g" style="padding:9px 13px;font-size:12.5px" onclick="tab='srs';srsSubTab='reg';render()">＋ カード登録</button>`}
       </div>
     </div>
   </div>`;
@@ -1593,7 +1855,7 @@ function vAddMatForm(){
 }
 function vMat(){
   const openAdd=showAddMat||!S.mats.length,arcCnt=arcMats().length;
-  const imgCnt=SRS.cards.reduce((a,c)=>a+(c.frontImages?c.frontImages.length:0)+(c.backImages?c.backImages.length:0),0);
+  const imgCnt=SRS.cards.reduce((a,c)=>a+(c.frontImages?c.frontImages.length:0)+(c.backImages?c.backImages.length:0),0)+Object.keys(SRS.media||{}).length;
   return `${vPe()}<div class="card"><h2><span>教材一覧</span><div style="display:flex;gap:6px">${arcCnt?`<button class="g" style="padding:5px 9px;font-size:11px" onclick="showArcMat=!showArcMat;render()">${showArcMat?'アーカイブを隠す':`📦 アーカイブ済み（${arcCnt}）`}</button>`:''}<button class="g" style="padding:5px 10px;font-size:12px" onclick="showAddMat=!showAddMat;render()">${openAdd?'閉じる':'＋ 教材を追加'}</button></div></h2>${openAdd?vAddMatForm():''}${vSubs()}</div>
 ${vImp()}<div class="card"><h2><span>統合バックアップ（JSON）</span><span class="sub">記録${S.logs.length}件 / カード${SRS.cards.length}枚 (画像${imgCnt})</span></h2>
 <div class="row"><button onclick="expFile()">すべて書き出し（JSON）</button><button class="g" onclick="$('jf').click()">ファイルから復元</button></div>
@@ -1691,7 +1953,7 @@ function bkData(){
   return JSON.stringify({
     app:'studylog_unified',v:1,exportedAt:new Date().toISOString(),
     studyLog:{subs:S.subs,mats:S.mats,logs:S.logs,goal:S.goal,dgoal:S.dgoal,minDay:S.minDay,cel:S.cel,pet:S.pet,homeOrder:S.homeOrder,tmrFavOnly:S.tmrFavOnly},
-    srs:{tags:SRS.tags,cards:SRS.cards}
+    srs:{tags:SRS.tags,cards:SRS.cards,media:SRS.media}
   });
 }
 function exp(){const d=bkData(),t=$('bk');if(t){t.value=d;t.select()}try{navigator.clipboard.writeText(d).then(()=>toast('コピーしました')).catch(()=>document.execCommand('copy'))}catch(e){try{document.execCommand('copy')}catch(_){}}}
@@ -1706,8 +1968,9 @@ async function expFile(){
   try{const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000)}catch(e){}
 }
 async function impFile2(inp){const f=inp.files[0];if(!f)return;$('bk').value=await f.text();await imp();inp.value=''}
-async function applySrsImport(cards,tags,overwrite){
-  if(overwrite){await srsDbClear();SRS.cards=[];SRS.tags=[]}
+async function applySrsImport(cards,tags,overwrite,media){
+  if(overwrite){await srsDbClear();await srsDbClearMedia();SRS.cards=[];SRS.tags=[]}
+  if(media&&typeof media==='object'){for(const [mid,u] of Object.entries(media))await srsDbPutMedia(mid,u)}
   (tags||[]).forEach(t=>{if(t&&t!==SRS_UNTAG&&!SRS.tags.includes(t))SRS.tags.push(t)});
   for(const c of (cards||[])){
     if(!c.id)c.id=srsGenId();
@@ -1726,7 +1989,7 @@ async function imp(){
       unwake();
       S={subs:sl.subs||[],mats:sl.mats||[],logs:sl.logs||[],goal:sl.goal||14,dgoal:sl.dgoal??60,minDay:sl.minDay??15,cel:sl.cel||{},pet:sl.pet||null,homeOrder:sl.homeOrder||null,tmrFavOnly:sl.tmrFavOnly??true,timer:null,sel:(sl.mats&&sl.mats[0])?sl.mats[0].id:null};
       ensureColors();save();
-      if(o.srs&&Array.isArray(o.srs.cards))await applySrsImport(o.srs.cards,o.srs.tags||[],true);
+      if(o.srs&&Array.isArray(o.srs.cards))await applySrsImport(o.srs.cards,o.srs.tags||[],true,o.srs.media);
       toast('統合バックアップを復元しました');render();return;
     }
     if(Array.isArray(o.logs)&&Array.isArray(o.mats)){
@@ -1735,7 +1998,7 @@ async function imp(){
       ensureColors();save();toast('勉強ログを復元しました');render();return;
     }
     if(Array.isArray(o.cards)){
-      await applySrsImport(o.cards,o.tags||[],false);
+      await applySrsImport(o.cards,o.tags||[],false,o.media);
       toast(`分散学習カード ${o.cards.length}件を取り込みました`);render();return;
     }
     throw 0;
@@ -1759,6 +2022,7 @@ function render(){
   updateSrsBadge();
   tick();
   if($('rm_pet'))roomStart();else{clearTimeout(roomTmr);cancelAnimationFrame(bubRaf)}
+  if($('occStg'))occBindStage();
 }
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
   const prev=tab;tab=b.dataset.t;
@@ -1775,6 +2039,14 @@ document.addEventListener('keydown',e=>{
     if(!SRS.ansShown&&(e.key===' '||e.key==='Enter')){e.preventDefault();SRS.ansShown=true;srsRenderRev()}
     else if(SRS.ansShown&&e.key>='1'&&e.key<='4'){e.preventDefault();srsRate(+e.key)}
     else if((e.key==='Backspace'||e.key==='z'||e.key==='Z')&&SRS.hist.length){e.preventDefault();srsUndoRev()}
+  }
+});
+document.addEventListener('paste',e=>{
+  if(tab==='srs'&&srsSubTab==='reg'&&SRS.regMode==='occ'){
+    const ae=document.activeElement;if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA'))return;
+    const cd=e.clipboardData||window.clipboardData;if(!cd)return;
+    const fs=[];if(cd.items)for(const it of cd.items)if(it.kind==='file'&&it.type.startsWith('image/')){const f=it.getAsFile();if(f)fs.push(f)}
+    if(fs.length){e.preventDefault();occPickImg(fs)}
   }
 });
 initStorage();
