@@ -314,13 +314,17 @@ textarea{min-height:100px;font-size:13.5px;line-height:1.55}
 .pm-st.lk svg *{fill:#525866!important;fill-opacity:1!important}
 .pm-st.lk svg rect[y="15"]{fill-opacity:.15!important}
 .pm-acc{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
-.camp-pills{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
-.camp-p{flex:1;min-width:60px;padding:7px 6px;border-radius:10px;border:1px solid var(--bd);background:var(--surf);color:var(--sub);font-size:12px;font-weight:700;cursor:pointer;text-align:center}
-.camp-p.on{background:#ea580c;border-color:#ea580c;color:#fff}
-.camp-p.on.norm{background:var(--ac);border-color:var(--ac);color:#fff}
-.camp-p:disabled{opacity:.5;cursor:not-allowed}
-.camp-bar-wrap{margin:0 0 10px;padding:8px 10px;border-radius:10px;background:rgba(234,88,12,.08);border:1px solid rgba(234,88,12,.22)}
-.camp-bar-top{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;font-weight:700;color:#c2410c;margin-bottom:5px}
+.camp-pills-wrap{display:flex;justify-content:center;margin:-6px 0 12px}
+.camp-pills{display:inline-flex;align-items:center;gap:2px;padding:2px;border-radius:9px;background:var(--surf)}
+.camp-p{display:inline-flex;align-items:center;justify-content:center;gap:3px;min-width:50px;height:26px;padding:0 10px;border-radius:7px;border:none;background:transparent;color:var(--sub);font-size:11.5px;font-weight:600;font-variant-numeric:tabular-nums;cursor:pointer;transition:background .15s,color .15s,box-shadow .15s}
+.camp-p.on{background:var(--card);color:#c2410c;box-shadow:0 1px 3px rgba(0,0,0,.1),0 .5px 1px rgba(0,0,0,.06)}
+.camp-p.on.norm{color:var(--tx)}
+.camp-p svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.camp-p:disabled{opacity:.45;cursor:not-allowed}
+.camp-bar-wrap{margin:-4px 0 12px;padding:0 2px}
+.camp-bar-top{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:600;color:var(--sub);margin-bottom:5px;font-variant-numeric:tabular-nums}
+.camp-bar-top .camp-em{color:#c2410c;font-weight:700}
+.clock.over{color:#059669}
 .camp-tag{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:999px;font-size:10.5px;font-weight:700;background:rgba(234,88,12,.12);color:#c2410c;margin-left:5px;vertical-align:middle}
 .pm-camp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:8px}
 .pm-cp-it{display:flex;align-items:center;gap:8px;padding:8px 9px;border-radius:10px;border:1px solid var(--bd);background:var(--surf);font-size:12px}
@@ -1670,7 +1674,21 @@ function finish(){
   if(s>=1){ed={id:null,fin:1,mid:t.mid,t:t.st,sec:s,amt:'',fr:'',to:'',focus:0,memo:'',camp:campData};tab='log'}
   save();render();
 }
-function tick(){if($('clock'))$('clock').textContent=clk(el());if($('mclk'))$('mclk').textContent=clk(el());
+const FLAME_ICO='<svg viewBox="0 0 24 24"><path d="M12 2c.5 4-3 6.5-3 10.5a5 5 0 0 0 10 0c0-3.5-2.5-6-3.5-7.5-.3 1.8-1.3 2.8-2.3 3.2C13.6 6 13.3 3.8 12 2z"/></svg>';
+function fmtMinSec(sec){const s=Math.max(0,Math.floor(sec)),m=Math.floor(s/60),r=s%60;return p2(m)+':'+p2(r)}
+function timerDisplay(){
+  const t=S.timer;
+  if(t&&t.camp){
+    const e=el(),g=t.camp*60;
+    if(e<g)return{text:fmtMinSec(Math.ceil(g-e)),over:false};
+    return{text:'+'+fmtMinSec(e-g),over:true};
+  }
+  if(!t&&Number(S.campGoal)>0){
+    return{text:fmtMinSec(Number(S.campGoal)*60),over:false};
+  }
+  return{text:clk(el()),over:false};
+}
+function tick(){const tdObj=timerDisplay();if($('clock')){$('clock').textContent=tdObj.text;$('clock').classList.toggle('over',tdObj.over)}if($('mclk'))$('mclk').textContent=tdObj.text;
 if($('gp')){const w=weekTotal(),g=S.goal*3600,td=todayTotal(),dg=DG()*60,mn=Math.max(1,MN())*60,p=Math.min(100,w/g*100);
 $('rg').style.background=`conic-gradient(${p>=100?'#059669':'var(--ac)'} ${p}%,var(--surf) 0)`;$('gt').textContent=hmFull(w);$('gr').textContent=Math.round(w/g*100)+'%';
 if($('kpi_td'))$('kpi_td').textContent=hm(td);
@@ -1693,8 +1711,9 @@ if(S.timer&&S.timer.camp){
   if($('camp_bar'))$('camp_bar').style.width=Math.min(100,cs/cgSec*100)+'%';
   if($('camp_lbl')){
     const rem=Math.max(0,Math.ceil((cgSec-cs)/60));
-    const fires='🔥'.repeat(Math.min(5,Math.max(1,Math.floor(cs/1800))));
-    $('camp_lbl').textContent=cs>=cgSec?`${fires} 目標達成！ 出現×${mult}（${guests.length}匹）`:`${fires} あと${rem}分・出現×${mult}（${guests.length}匹）`;
+    const wi=S.timer.weather&&CAMP_WEATHER_INFO[S.timer.weather];
+    const wiTxt=(wi&&wi.label)?`${wi.ico} ${wi.label} ・ `:'';
+    $('camp_lbl').innerHTML=`${wiTxt}<span class="camp-em">${cs>=cgSec?'延長中':'焚き火'}</span> ・ 出現×${mult} ・ ${guests.length}匹`;
   }
   if($('camp_icos'))$('camp_icos').textContent=guests.map(g=>(CAMP_FRIEND_MAP[g.id]&&CAMP_FRIEND_MAP[g.id].ico)||'').join('');
   if(arrived.length){
@@ -2009,9 +2028,11 @@ function vHome(){
 <div class="kpis"><div><span class="sub">今日</span><b id="kpi_td">0分</b></div><div><span class="sub">今月</span><b id="kpi_mo">0時間</b></div><div><span class="sub">累計</span><b id="kpi_al">0時間</b></div></div>
 <div class="sub">今日の目標 <span id="dg"></span></div><div class="bar"><i id="gp" style="background:#f59e0b"></i></div>
 <div class="row" style="margin-top:10px"><div><div class="sub">週目標（時間）</div><input type="number" min="0.5" step="0.5" value="${S.goal}" oninput="setGoal(this.value)" style="margin:0"></div><div><div class="sub">1日目標（分）</div><input type="number" min="0" step="5" value="${DG()}" oninput="setDGoal(this.value)" style="margin:0"></div><div><div class="sub">最低ライン（分）</div><input type="number" min="0" step="5" value="${MN()}" oninput="setMinDay(this.value)" style="margin:0"></div></div></div>${subWeek()}`;
-  const cg=t?(t.camp||0):(Number(S.campGoal)||0),cs=t?el():0,cGuests=(t&&t.camp)?(t.guests||[]):[],cMult=campMultForMin(Math.floor(cs/60)),cFires='🔥'.repeat(Math.min(5,Math.max(1,Math.floor(cs/1800)))),cWi=(t&&t.weather&&CAMP_WEATHER_INFO[t.weather])||{ico:'',label:''};
-  const campCtrl=t?(cg?`<div class="camp-bar-wrap"><div class="camp-bar-top"><span id="camp_lbl">${cWi.ico?cWi.ico+' ':''}${cs>=cg*60?`${cFires} 目標達成！ 出現×${cMult}（${cGuests.length}匹）`:`${cFires} あと${Math.max(0,Math.ceil((cg*60-cs)/60))}分・出現×${cMult}（${cGuests.length}匹）`}</span><span id="camp_icos">${cGuests.map(g=>(CAMP_FRIEND_MAP[g.id]&&CAMP_FRIEND_MAP[g.id].ico)||'').join('')}</span></div><div class="bar" style="height:6px;margin:0"><i id="camp_bar" style="width:${Math.min(100,cs/(cg*60)*100)}%;background:#ea580c"></i></div></div>`:''):`<div class="camp-pills">${[0,30,60,90].map(m=>`<button type="button" class="camp-p ${cg===m?(m?'on':'on norm'):''}" onclick="setCampGoal(${m})">${m?`🔥 ${m}分`:'通常'}</button>`).join('')}</div>`;
-  const timerHtml=`<div class="card"><h2><span>タイマー</span>${cur?`<span style="color:${col(cur)}">● ${esc(cur.title)}</span>`:''}</h2><div class="clock" id="clock">00:00:00</div>${campCtrl}${timerShelfHTML(curId)}<div class="row"><button onclick="toggle()" ${canStart||t?'':'disabled'}>${run?'一時停止':t?'再開':(cg?`🔥 ${cg}分スタート`:'スタート')}</button>${t?'<button class="r" onclick="finish()">終了して記録</button>':'<button class="g" onclick="openManualLog()">手動で記録</button>'}</div></div>`;
+  const cg=t?(t.camp||0):(Number(S.campGoal)||0),cs=t?el():0,cGuests=(t&&t.camp)?(t.guests||[]):[],cMult=campMultForMin(Math.floor(cs/60)),cWi=(t&&t.weather&&CAMP_WEATHER_INFO[t.weather])||{ico:'',label:''};
+  const tdInit=timerDisplay();
+  const wiTxt=cWi.label?`${cWi.ico} ${cWi.label} ・ `:'';
+  const campCtrl=t?(cg?`<div class="camp-bar-wrap"><div class="camp-bar-top"><span id="camp_lbl">${wiTxt}<span class="camp-em">${cs>=cg*60?'延長中':'焚き火'}</span> ・ 出現×${cMult} ・ ${cGuests.length}匹</span><span id="camp_icos">${cGuests.map(g=>(CAMP_FRIEND_MAP[g.id]&&CAMP_FRIEND_MAP[g.id].ico)||'').join('')}</span></div><div class="bar" style="height:3px;margin:0"><i id="camp_bar" style="width:${Math.min(100,cs/(cg*60)*100)}%;background:${cs>=cg*60?'#059669':'#d97706'}"></i></div></div>`:''):`<div class="camp-pills-wrap"><div class="camp-pills" role="tablist">${[0,30,60,90].map(m=>`<button type="button" class="camp-p ${cg===m?(m?'on':'on norm'):''}" onclick="setCampGoal(${m})">${m?`${m}分`:'フリー'}</button>`).join('')}</div></div>`;
+  const timerHtml=`<div class="card"><h2><span>タイマー</span>${cur?`<span style="color:${col(cur)}">● ${esc(cur.title)}</span>`:''}</h2><div class="clock ${tdInit.over?'over':''}" id="clock">${tdInit.text}</div>${campCtrl}${timerShelfHTML(curId)}<div class="row"><button onclick="toggle()" ${canStart||t?'':'disabled'} >${run?'一時停止':t?'再開':'スタート'}</button>${t?'<button class="r" onclick="finish()">終了して記録</button>':'<button class="g" onclick="openManualLog()">手動で記録</button>'}</div></div>`;
   const parts={srs:vSrsHomeCard(),pet:vPartner(),goal:goalHtml,timer:timerHtml},o=homeOrder();
   return `<div style="display:flex;justify-content:flex-end;margin:0 0 8px"><button class="g" style="padding:5px 12px;font-size:12px" onclick="toggleHomeEdit()">${homeEdit?'✓ 完了':'⇅ 並べ替え'}</button></div>`+
   o.map((id,i)=>`<div class="hc ${homeEdit?'edit':''}">${homeEdit?`<div class="hc-bar"><b>${HOME_NAME[id]}</b><span><button class="g" onclick="moveHome('${id}',-1)" ${i?'':'disabled'}>↑</button><button class="g" onclick="moveHome('${id}',1)" ${i<o.length-1?'':'disabled'}>↓</button></span></div>`:''}${parts[id]}</div>`).join('');
@@ -2051,7 +2072,7 @@ function addNew(mid){const defId=mid||ensureValidSel()||(S.mats[0]&&S.mats[0].id
 function editLog(id){const l=S.logs.find(x=>x.id==id);if(!l)return;tab='log';ed={...l,amt:l.amt??'',fr:l.fr??'',to:l.to??''};render();if($('main'))$('main').scrollTo(0,0)}
 function vLog(){const ls=[...S.logs].sort((a,b)=>b.t-a.t).slice(0,150),g={};ls.forEach(l=>(g[dk(l.t)]=g[dk(l.t)]||[]).push(l));
 return (ed?vForm():S.mats.length?`<div class="card"><h2><span>教材をタップして記録を追加</span><span class="sub" style="font-weight:400">★お気に入り優先</span></h2>${logShelfHTML(null,'addNew')}</div>`:'')+
-`<div class="card"><h2>タイムライン</h2>${ls.length?Object.entries(g).map(([d,a])=>{const dd=new Date(d.replace(/-/g,'/'));return `<div class="dh"><b>${dd.getMonth()+1}/${dd.getDate()}（${DW[dd.getDay()]}）</b><span>${hm(sm(a))}</span></div>`+a.map(l=>{const m=mat(l.mid);return `<div class="it"><div style="width:4px;height:44px;border-radius:2px;background:${col(m)};flex:none"></div>${cover(m)}<div class="it-body"><b>${esc(m?m.title:'削除済み')}</b>${m&&m.arc?' <span class="arc-tag">完了</span>':''}${l.camp?`<span class="camp-tag">${'🔥'.repeat(Math.min(5,Math.max(1,Math.floor(l.sec/1800))))}${l.camp.guests&&l.camp.guests.length?` ${l.camp.guests.length}匹`:''}</span>`:''}<div class="sub">${l.nt?'':tm(l.t)+'〜 '}<b style="color:var(--tx)">${hm(l.sec)}</b>${l.amt!=null?' ／ '+l.amt+(m?m.unit:'')+(l.to!=null?'（'+(l.fr!=null?l.fr:'')+'〜'+l.to+'）':''):''}${l.focus?' ／ '+['','△','○','◎'][l.focus]:''}${l.memo?'<br>'+esc(l.memo):''}</div></div><button class="g" onclick="editLog(${l.id})">編集</button></div>`}).join('')}).join(''):'<div class="sub">記録がありません</div>'}</div>`}
+`<div class="card"><h2>タイムライン</h2>${ls.length?Object.entries(g).map(([d,a])=>{const dd=new Date(d.replace(/-/g,'/'));return `<div class="dh"><b>${dd.getMonth()+1}/${dd.getDate()}（${DW[dd.getDay()]}）</b><span>${hm(sm(a))}</span></div>`+a.map(l=>{const m=mat(l.mid);return `<div class="it"><div style="width:4px;height:44px;border-radius:2px;background:${col(m)};flex:none"></div>${cover(m)}<div class="it-body"><b>${esc(m?m.title:'削除済み')}</b>${m&&m.arc?' <span class="arc-tag">完了</span>':''}${l.camp&&l.sec>=1800?`<span class="camp-tag">${'🔥'.repeat(Math.min(5,Math.floor(l.sec/1800)))}${l.camp.guests&&l.camp.guests.length?` ${l.camp.guests.length}匹`:''}</span>`:''}<div class="sub">${l.nt?'':tm(l.t)+'〜 '}<b style="color:var(--tx)">${hm(l.sec)}</b>${l.amt!=null?' ／ '+l.amt+(m?m.unit:'')+(l.to!=null?'（'+(l.fr!=null?l.fr:'')+'〜'+l.to+'）':''):''}${l.focus?' ／ '+['','△','○','◎'][l.focus]:''}${l.memo?'<br>'+esc(l.memo):''}</div></div><button class="g" onclick="editLog(${l.id})">編集</button></div>`}).join('')}).join(''):'<div class="sub">記録がありません</div>'}</div>`}
 
 /* 振り返り */
 function jumpLatest(){
