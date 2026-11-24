@@ -314,6 +314,37 @@ textarea{min-height:100px;font-size:13.5px;line-height:1.55}
 .pm-st.lk svg *{fill:#525866!important;fill-opacity:1!important}
 .pm-st.lk svg rect[y="15"]{fill-opacity:.15!important}
 .pm-acc{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.camp-pills{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.camp-p{flex:1;min-width:60px;padding:7px 6px;border-radius:10px;border:1px solid var(--bd);background:var(--surf);color:var(--sub);font-size:12px;font-weight:700;cursor:pointer;text-align:center}
+.camp-p.on{background:#ea580c;border-color:#ea580c;color:#fff}
+.camp-p.on.norm{background:var(--ac);border-color:var(--ac);color:#fff}
+.camp-p:disabled{opacity:.5;cursor:not-allowed}
+.camp-bar-wrap{margin:0 0 10px;padding:8px 10px;border-radius:10px;background:rgba(234,88,12,.08);border:1px solid rgba(234,88,12,.22)}
+.camp-bar-top{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;font-weight:700;color:#c2410c;margin-bottom:5px}
+.camp-tag{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:999px;font-size:10.5px;font-weight:700;background:rgba(234,88,12,.12);color:#c2410c;margin-left:5px;vertical-align:middle}
+.pm-camp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:8px}
+.pm-cp-it{display:flex;align-items:center;gap:8px;padding:8px 9px;border-radius:10px;border:1px solid var(--bd);background:var(--surf);font-size:12px}
+.pm-cp-it.lk{opacity:.58}
+.pm-cp-ico{width:34px;height:34px;border-radius:8px;background:var(--card);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
+.pm-cp-it.lk .pm-cp-ico{filter:brightness(0) opacity(.32)}
+@keyframes flm{0%,100%{transform:scaleY(1) translateY(0)}50%{transform:scaleY(1.12) translateY(-.4px)}}
+@keyframes spk{0%{opacity:0;transform:translateY(0)}25%{opacity:.95}100%{opacity:0;transform:translateY(-9px)}}
+@keyframes twk{0%,100%{opacity:.95}50%{opacity:.3}}
+@keyframes sstar{0%,84%{opacity:0;transform:translate(0,0)}88%{opacity:1}95%{opacity:0;transform:translate(-18px,10px)}100%{opacity:0}}
+.cf-flm{transform-box:fill-box;transform-origin:bottom center;animation:flm 1.1s ease-in-out infinite}
+.cf-flm2{transform-box:fill-box;transform-origin:bottom center;animation:flm .85s ease-in-out infinite .2s}
+.cf-spk1{animation:spk 2.2s ease-out infinite}
+.cf-spk2{animation:spk 2.6s ease-out infinite .9s}
+.cf-twk{animation:twk 2.8s ease-in-out infinite}
+.cf-star{animation:sstar 7s ease-in infinite}
+@keyframes snw{0%{transform:translate(0,-4px);opacity:0}15%{opacity:.95}85%{opacity:.85}100%{transform:translate(-4px,46px);opacity:0}}
+@keyframes ffl{0%,100%{opacity:.15;transform:translate(0,0)}50%{opacity:1;transform:translate(2px,-3px)}}
+.cf-snw1{animation:snw 4.8s linear infinite}
+.cf-snw2{animation:snw 5.6s linear infinite 1.7s}
+.cf-snw3{animation:snw 4.2s linear infinite 3.1s}
+.cf-ffl1{animation:ffl 2.4s ease-in-out infinite}
+.cf-ffl2{animation:ffl 3.1s ease-in-out infinite .9s}
+.pm-cp-it.rare{border-color:rgba(245,158,11,.55);background:linear-gradient(135deg,var(--surf),rgba(254,243,199,.35))}
 .pm-ac-it{background:var(--surf);border:0.5px solid var(--bd);border-radius:10px;padding:7px 8px;font-size:11px;display:flex;align-items:center;gap:6px}
 .pm-ac-it.lk{opacity:.48}
 .cat-tag{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700}
@@ -693,13 +724,37 @@ function srsCompressImg(file){
 }
 
 /* 復習時間の自動ログ記録 */
+const FEAST_TYPES=[
+  {id:'bread',name:'焼きたてパン'},
+  {id:'tart',name:'ベリータルト'},
+  {id:'cake',name:'ショートケーキ'},
+  {id:'tea',name:'ティーセット'}
+];
+function checkSrsFeast(){
+  const t=srsToday();
+  if(!SRS.cards.length||srsDueCards(t).length>0)return null;
+  if(!S.pet||typeof S.pet!=='object')S.pet={claimedLv:calcPetLv(allTotal()/3600),viewLv:0};
+  if(S.pet.feastDate===t)return null;
+  const picked=FEAST_TYPES[Math.floor(Math.random()*FEAST_TYPES.length)];
+  S.pet.feastDate=t;
+  S.pet.feastType=picked.id;
+  return picked;
+}
 function srsAutoLogSession(){
   if(!SRS.sessionStart||SRS.sessionCount<=0)return;
   const sec=Math.round((Date.now()-SRS.sessionStart)/1000);
   const cnt=SRS.sessionCount;
   const st=SRS.sessionStart;
   SRS.sessionStart=null;SRS.sessionCount=0;
-  if(sec<30)return;
+  const feast=checkSrsFeast();
+  if(sec<30){
+    if(feast){
+      petLine=`今日の復習ぜんぶ完了！部屋に「${feast.name}」が届いたよ！`;
+      showBubble(5500);save();
+      toast(`🎉 今日の復習を全クリ！部屋に「${feast.name}」が届きました`);
+    }
+    return;
+  }
   let m=S.mats.find(x=>x.title==='分散学習'&&!x.arc)||S.mats.find(x=>x.title==='分散学習');
   if(!m){
     let sb=S.subs.find(x=>x.name==='分散学習');
@@ -710,10 +765,12 @@ function srsAutoLogSession(){
   const snap=JSON.stringify({subs:S.subs,mats:S.mats,logs:S.logs});
   S.logs.push({id:uid(),mid:m.id,t:st,sec,amt:cnt,to:null,fr:null,focus:0,memo:`分散学習 ${cnt}枚`,nt:0});
   us=snap;
-  petLine=pickL([`分散学習${cnt}枚おつかれさま！記憶がしっかり定着したよ。`,`${hm(sec)}の復習、えらいね！ぽかぽかするよ。`,'コツコツ思い出すのが一番効くんだよね！']);
-  showBubble(5000);
+  petLine=feast
+    ? `今日の復習ぜんぶ完了！部屋に「${feast.name}」が届いたよ！`
+    : pickL([`分散学習${cnt}枚おつかれさま！記憶がしっかり定着したよ。`,`${hm(sec)}の復習、えらいね！ぽかぽかするよ。`,'コツコツ思い出すのが一番効くんだよね！']);
+  showBubble(5500);
   save();
-  toast(`復習 ${cnt}枚（${hm(sec)}）を勉強ログに記録しました`,'元に戻す');
+  toast(feast?`🎉 復習全クリ！部屋に「${feast.name}」が届きました`:`復習 ${cnt}枚（${hm(sec)}）を勉強ログに記録しました`,'元に戻す');
 }
 
 /* SRS SVG曲線生成 */
@@ -1221,7 +1278,7 @@ function srsRenderEditModal(){
 function srsCloseEdit(){$('srsEditMod').classList.remove('on');SRS.editId=null}
 function srsResetCard(){
   const c=SRS.cards.find(x=>x.id===SRS.editId);if(!c)return;
-  c.interval=0;c.repetition=0;c.efactor=2.5;c.lastScore=null;c.nextReviewDate=srsToday();
+  c.interval=0;c.repetition=0;c.efactor=2.5;c.lastScore=null;c.lastReviewedAt=null;c.reviewHistory=[];c.nextReviewDate=srsToday();
   srsRenderEditModal();toast('定着度を初期化しました');
 }
 async function srsSaveEdit(){
@@ -1236,14 +1293,32 @@ async function srsSaveEdit(){
   c.frontText=ft;c.backText=bt;
   await srsDbPut(c);srsCloseEdit();toast('変更を保存しました');render();
 }
+let srsDelSnap=null;
 function srsReqDelCard(){
   const id=SRS.editId;if(!id)return;
-  askDel('カードを削除しますか？','このカードを削除します。',async()=>{
-    const tgt=SRS.cards.find(x=>x.id===id);
-    await srsDbDel(id);SRS.cards=SRS.cards.filter(x=>x.id!==id);
-    if(tgt&&tgt.occlusion&&!SRS.cards.some(x=>x.occlusion&&x.occlusion.imgId===tgt.occlusion.imgId))await srsDbDelMedia(tgt.occlusion.imgId);
-    srsCloseEdit();render();
-  });
+  const c=$('cfm');
+  cfmFn=null;
+  c.innerHTML=`<div class="cm-box"><div class="cm-t">カードを削除しますか？</div><div class="cm-m">このカードを削除します。</div><div class="row"><button class="g" onclick="closeCfm()">キャンセル</button><button class="r" onclick="srsExecDelCard('${id}')">削除する</button></div></div>`;
+  c.style.display='flex';
+}
+async function srsExecDelCard(id){
+  closeCfm();
+  const tgt=SRS.cards.find(x=>x.id===id);if(!tgt)return;
+  const imgId=tgt.occlusion&&tgt.occlusion.imgId;
+  const mediaSnap=(imgId&&SRS.media[imgId])?{id:imgId,data:SRS.media[imgId]}:null;
+  srsDelSnap={card:JSON.parse(JSON.stringify(tgt)),media:mediaSnap};
+  await srsDbDel(id);SRS.cards=SRS.cards.filter(x=>x.id!==id);
+  if(imgId&&!SRS.cards.some(x=>x.occlusion&&x.occlusion.imgId===imgId))await srsDbDelMedia(imgId);
+  srsCloseEdit();render();
+  clearTimeout(ut);const t=$('toast');t.innerHTML=`カードを削除しました <button onclick="srsUndoDelCard()">元に戻す</button>`;t.style.display='flex';ut=setTimeout(()=>{t.style.display='none';srsDelSnap=null},6000);
+}
+async function srsUndoDelCard(){
+  if(!srsDelSnap)return;
+  const snap=srsDelSnap;srsDelSnap=null;
+  if(snap.media)await srsDbPutMedia(snap.media.id,snap.media.data);
+  if(!SRS.cards.some(x=>x.id===snap.card.id))SRS.cards.push(snap.card);
+  await srsDbPut(snap.card);
+  $('toast').style.display='none';toast('カードを元に戻しました');render();
 }
 
 /* 全画面復習オーバーレイ */
@@ -1295,7 +1370,7 @@ function srsRenderRev(){
   }
   if(SRS.batchPause){
     const rem=tot-SRS.idx;
-    $('srsRev').innerHTML=`<div class="rev-top"><button class="g" style="padding:6px 10px;font-size:12px" onclick="srsExitRev()">✕ 終了</button><div class="rev-prog"><i style="width:${Math.round(SRS.idx/tot*100)}%"></i></div><span class="sub" style="font-weight:700">${SRS.idx}/${tot}</span></div>
+    $('srsRev').innerHTML=`<div class="rev-top"><button class="g" style="padding:6px 10px;font-size:12px" onclick="srsExitRev()">✕ 終了</button><button class="g" style="padding:6px 10px;font-size:12px" onclick="srsUndoRev()" ${SRS.hist.length?'':'disabled'}>↩ 戻る</button><div class="rev-prog"><i style="width:${Math.round(SRS.idx/tot*100)}%"></i></div><span class="sub" style="font-weight:700">${SRS.idx}/${tot}</span></div>
     <div class="rev-body" style="display:flex;align-items:center;justify-content:center">
       <div class="card" style="width:100%;text-align:center;padding:28px 20px">
         <div style="font-size:44px;margin-bottom:6px">🎉</div>
@@ -1354,7 +1429,7 @@ function srsRenderRev(){
       <button class="rev-rb r4" onclick="srsRate(4)"><b>◎ 簡単</b><span>${nxt[3]}</span></button>
     </div>`:`<button style="width:100%;padding:15px;font-size:16px" onclick="SRS.ansShown=true;srsRenderRev()">解答を表示する</button>`}
   </div></div>`;
-  if($('revSc'))$('revSc').scrollTop=SRS.ansShown?$('revSc').scrollHeight:0;
+  if($('revSc'))$('revSc').scrollTop=(SRS.ansShown&&!c.occlusion)?$('revSc').scrollHeight:0;
 }
 async function srsRate(g){
   const c=SRS.queue[SRS.idx];if(!c)return;
@@ -1376,7 +1451,7 @@ async function srsRate(g){
       SRS.queue=head.concat(tail);
     }
   }
-  SRS.hist.push({idx:SRS.idx,snap:JSON.parse(JSON.stringify(c)),req:g===1,buried});
+  SRS.hist.push({idx:SRS.idx,snap:JSON.parse(JSON.stringify(c)),req:g===1,buried,batchDone:SRS.batchDone});
   if(g===1)SRS.queue.push(c);
   const prevLastAt=c.lastReviewedAt,prevScore=c.lastScore,prevIv=c.interval,prevRep=c.repetition,prevEf=c.efactor;
   const u=srsCalcSched(c,g,t,true);
@@ -1418,7 +1493,7 @@ async function srsUndoRev(){
   if(c)Object.assign(c,h.snap);
   for(let i=0;i<SRS.queue.length;i++)if(SRS.queue[i].id===h.snap.id)SRS.queue[i]=c||h.snap;
   await srsDbPut(c||h.snap);
-  SRS.idx=h.idx;SRS.ansShown=false;SRS.peekAll=false;SRS.batchPause=false;SRS.sessionCount=Math.max(0,SRS.sessionCount-1);
+  SRS.idx=h.idx;SRS.ansShown=false;SRS.peekAll=false;SRS.batchPause=false;if(typeof h.batchDone==='number')SRS.batchDone=h.batchDone;SRS.sessionCount=Math.max(0,SRS.sessionCount-1);
   srsRenderRev();
 }
 function srsExitRev(){
@@ -1477,18 +1552,122 @@ function clearCover(target){
   askDel('表紙画像を削除しますか？',`「${m.title}」の表紙画像を削除します。`,()=>{m.cover='';save();render()});
 }
 
+const CAMP_FRIENDS=[
+  {id:'bird',min:0,ico:'🐦',name:'ルリビタキ',gift:'青い羽根'},
+  {id:'squirrel',min:0,ico:'🐿',name:'もりリス',gift:'どんぐり瓶'},
+  {id:'rabbit',min:30,ico:'🐇',name:'ゆきうさぎ',gift:'白い小花'},
+  {id:'fox',min:60,ico:'🦊',name:'あかきつね',gift:'小さなランタン'},
+  {id:'owl',min:90,ico:'🦉',name:'しろフクロウ',gift:'星のかけら'},
+  {id:'ermine',min:60,ico:'🐾',name:'しろオコジョ',gift:'雪の結晶ガラス',rare:true,weather:'snow',hint:'❄️ 雪の焚き火 60分〜'},
+  {id:'fawn',min:60,ico:'🦌',name:'ほしの子鹿',gift:'月光のベル',rare:true,weather:'fullmoon',hint:'🌕 満月の焚き火 60分〜'},
+  {id:'cat',min:60,ico:'🐱',name:'もりのヤマネコ',gift:'ホタルの小瓶',rare:true,weather:'firefly',hint:'✨ ホタルの焚き火 60分〜'}
+];
+const CAMP_FRIEND_MAP=Object.fromEntries(CAMP_FRIENDS.map(f=>[f.id,f]));
+const CAMP_WEATHER_INFO={
+  normal:{ico:'',label:''},
+  snow:{ico:'❄️',label:'雪の焚き火',rareId:'ermine'},
+  fullmoon:{ico:'🌕',label:'満月の焚き火',rareId:'fawn'},
+  firefly:{ico:'✨',label:'ホタルの焚き火',rareId:'cat'}
+};
+function rollCampWeather(){
+  const r=Math.random();
+  if(r<0.05)return 'snow';
+  if(r<0.10)return 'fullmoon';
+  if(r<0.15)return 'firefly';
+  return 'normal';
+}
+const CAMP_SPOTS=[[10,37],[60,42],[69,44],[19,43],[82,32],[56,37],[75,41],[14,47],[64,48],[35,38],[85,45],[6,45]];
+function campMultForMin(m){return m>=90?5:m>=60?3.5:m>=30?2:1}
+function pickCampSpecies(m,weather){
+  const tbl=m>=90?[['bird',12],['squirrel',15],['rabbit',20],['fox',28],['owl',25]]
+    :m>=60?[['bird',20],['squirrel',20],['rabbit',25],['fox',25],['owl',10]]
+    :m>=30?[['bird',30],['squirrel',30],['rabbit',30],['fox',10]]
+    :[['bird',60],['squirrel',40]];
+  const wi=CAMP_WEATHER_INFO[weather];
+  if(m>=60&&wi&&wi.rareId){
+    tbl.push([wi.rareId,m>=90?32:18]);
+  }
+  let r=Math.random()*tbl.reduce((a,x)=>a+x[1],0);
+  for(const [id,w] of tbl){r-=w;if(r<=0)return id}
+  return tbl[0][0];
+}
+function rollCampGuests(t,sec){
+  if(!t||!t.camp)return [];
+  if(!Array.isArray(t.guests))t.guests=[];
+  const curMin=Math.floor(sec/60);
+  let lastM=Number(t.lastRollMin)||0;
+  if(curMin<=lastM)return [];
+  const arrived=[],wi=CAMP_WEATHER_INFO[t.weather||'normal'];
+  for(let m=lastM+1;m<=curMin;m++){
+    if(t.guests.length>=CAMP_SPOTS.length)break;
+    const mult=campMultForMin(m);
+    const p=Math.min(0.32,0.035*mult);
+    const rareGuarantee=(m===90&&wi&&wi.rareId&&!t.guests.some(g=>g.id===wi.rareId));
+    const guarantee=(m===30&&t.guests.length<1)||(m===60&&t.guests.length<3)||(m===90&&t.guests.length<5)||rareGuarantee;
+    if(guarantee||Math.random()<p){
+      const sp=rareGuarantee?wi.rareId:pickCampSpecies(m,t.weather||'normal');
+      const used=new Set(t.guests.map(g=>g.spot));
+      let spot=0;while(used.has(spot)&&spot<CAMP_SPOTS.length-1)spot++;
+      const g={id:sp,spot,m};
+      t.guests.push(g);
+      arrived.push(g);
+    }
+  }
+  t.lastRollMin=curMin;
+  if(arrived.length)save();
+  return arrived;
+}
+function setCampGoal(m){if(S.timer)return;S.campGoal=Number(m)||0;save();render()}
+function toggleSouvenirs(){
+  if(!S.pet||typeof S.pet!=='object')S.pet={claimedLv:calcPetLv(allTotal()/3600),viewLv:0};
+  S.pet.showSouvenirs=(S.pet.showSouvenirs===false)?true:false;
+  save();openPetModal();render();
+}
 function toggle(){
   const t=S.timer;
-  if(!t){const mid=ensureValidSel();if(!mid)return;S.sel=mid;S.timer={mid,acc:0,at:Date.now(),st:Date.now()};wake()}
-  else if(t.at){t.acc=el();t.at=null;unwake()}
-  else{t.at=Date.now();wake()}
-  petLine='';showBubble(4500);save();render();
+  if(!t){
+    const mid=ensureValidSel();if(!mid)return;
+    S.sel=mid;
+    const cg=Number(S.campGoal)||0;
+    const w=cg?rollCampWeather():'normal';
+    const wi=CAMP_WEATHER_INFO[w];
+    S.timer={mid,acc:0,at:Date.now(),st:Date.now(),camp:cg,weather:w,guests:[],lastRollMin:0};
+    wake();
+    petLine=cg?(wi&&wi.label?`${wi.ico} 今夜は「${wi.label}」だね！珍しい仲間が来るかも。`:`焚き火に火をつけたよ。${cg}分じっくりいこう！`):'';
+  }
+  else if(t.at){t.acc=el();t.at=null;unwake();petLine='';}
+  else{t.at=Date.now();wake();petLine='';}
+  showBubble(4500);save();render();
 }
 function finish(){
-  const t=S.timer,s=Math.round(el());S.timer=null;unwake();
-  petLine=pickL(['おつかれさま！ぽかぽかするよ。',`${hm(s)}もがんばったね。おつかれさま！`,'ふぅ…ぼくまで満たされたよ。','ありがとう！元気がわいてきたよ。']);
-  showBubble(5000);
-  if(s>=1){ed={id:null,fin:1,mid:t.mid,t:t.st,sec:s,amt:'',fr:'',to:'',focus:0,memo:''};tab='log'}
+  const t=S.timer,s=Math.round(el());
+  if(t&&t.camp)rollCampGuests(t,s);
+  S.timer=null;unwake();
+  let campData=null;
+  if(t&&t.camp){
+    const guests=Array.isArray(t.guests)?t.guests:[];
+    const gIds=guests.map(g=>g.id);
+    if(!S.pet||typeof S.pet!=='object')S.pet={claimedLv:calcPetLv(allTotal()/3600),viewLv:0};
+    if(!S.pet.campFriends||typeof S.pet.campFriends!=='object')S.pet.campFriends={};
+    const newly=[];
+    guests.forEach(g=>{
+      const info=CAMP_FRIEND_MAP[g.id];
+      if(info&&!S.pet.campFriends[g.id]&&!newly.includes(info))newly.push(info);
+      S.pet.campFriends[g.id]=(S.pet.campFriends[g.id]||0)+1;
+    });
+    campData={goal:t.camp,guests:gIds,reached:s>=t.camp*60};
+    if(newly.length){
+      petLine=`${newly.map(x=>x.name).join('・')}がおみやげを置いていったよ！`;
+    }else if(guests.length){
+      petLine=`${guests.length}匹の仲間と焚き火できたね！おつかれさま。`;
+    }else{
+      petLine=`焚き火おつかれさま！長く続けるほど仲間が集まりやすくなるよ。`;
+    }
+  }else{
+    petLine=pickL(['おつかれさま！ぽかぽかするよ。',`${hm(s)}もがんばったね。おつかれさま！`,'ふぅ…ぼくまで満たされたよ。','ありがとう！元気がわいてきたよ。']);
+  }
+  showBubble(5500);
+  if(s>=1){ed={id:null,fin:1,mid:t.mid,t:t.st,sec:s,amt:'',fr:'',to:'',focus:0,memo:'',camp:campData};tab='log'}
   save();render();
 }
 function tick(){if($('clock'))$('clock').textContent=clk(el());if($('mclk'))$('mclk').textContent=clk(el());
@@ -1507,6 +1686,25 @@ if($('pt_hrs')){
 $('gp').style.width=(dg?Math.min(100,td/dg*100):0)+'%';$('dg').textContent=dg?`${hm(td)} / ${hm(dg)}`:'未設定';
 $('st_num').textContent=streak();
 $('ml').textContent=td>=mn?'✓ 今日の連続日数キープ済み':`あと${Math.ceil((mn-td)/60)}分で連続キープ`}
+if(S.timer&&S.timer.camp){
+  const cs=el(),cgSec=S.timer.camp*60,curMin=Math.floor(cs/60),mult=campMultForMin(curMin);
+  const arrived=rollCampGuests(S.timer,cs);
+  const guests=S.timer.guests||[];
+  if($('camp_bar'))$('camp_bar').style.width=Math.min(100,cs/cgSec*100)+'%';
+  if($('camp_lbl')){
+    const rem=Math.max(0,Math.ceil((cgSec-cs)/60));
+    const fires='🔥'.repeat(Math.min(5,Math.max(1,Math.floor(cs/1800))));
+    $('camp_lbl').textContent=cs>=cgSec?`${fires} 目標達成！ 出現×${mult}（${guests.length}匹）`:`${fires} あと${rem}分・出現×${mult}（${guests.length}匹）`;
+  }
+  if($('camp_icos'))$('camp_icos').textContent=guests.map(g=>(CAMP_FRIEND_MAP[g.id]&&CAMP_FRIEND_MAP[g.id].ico)||'').join('');
+  if(arrived.length){
+    const nv=CAMP_FRIEND_MAP[arrived[arrived.length-1].id];
+    petLine=nv?(nv.rare?`わっ…！レアな「${nv.name}」が来てくれたよ！`:`あっ、${nv.name}が焚き火に遊びに来たよ！（計${guests.length}匹）`):`新しい仲間が遊びに来たよ！`;
+    showBubble(6000);
+    const bg=document.querySelector('.rm-bg');
+    if(bg)bg.innerHTML=campSVG(cs,S.timer.camp,guests,S.timer.weather);
+  }
+}
 chk()}
 setInterval(tick,1000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){tick();if(S.timer&&S.timer.at)wake()}});
@@ -1543,6 +1741,7 @@ function foodLevel(){
   const now=Date.now();let v=0;
   S.logs.forEach(l=>{const ageH=Math.max(0,(now-(l.t+l.sec*1000))/36e5);if(ageH<24)v+=(l.sec/60)*(1-ageH/24)*(100/60)});
   if(S.timer)v+=(el()/60)*(100/60);
+  if(S.pet&&S.pet.feastDate===srsToday())v+=20;
   return Math.min(100,Math.max(0,v));
 }
 function petMood(){const f=foodLevel();return f>=70?'happy':f>=35?'normal':f>=10?'hungry':'weak'}
@@ -1650,10 +1849,91 @@ function roomSVG(h,f,c,dark){
   if(h>=25)s+=R(34,46,5,4,'#c0714a')+R(35,41,3,5,'#22c55e')+R(33,43,2,2,'#22c55e')+R(38,43,2,2,'#22c55e');
   s+=R(42,47,20,1,'#c97b7b')+R(41,48,22,3,'#e9a3a3')+R(42,51,20,1,'#c97b7b')+R(45,50,8,2,'#f3e8d0')+R(46,52,6,1,'#8a5a3a');
   if(f>=30)s+=R(46,49,6,1,'#e0a35a');
+  // 焚き火のおみやげ（ON時のみ、机や棚・窓辺に小さく上品に配置）
+  const cf=(S.pet&&S.pet.campFriends)||{},showS=!(S.pet&&S.pet.showSouvenirs===false);
+  if(showS){
+    if(cf.bird)s+=R(76,20,1,3,'#38bdf8')+R(77,19,1,3,'#0284c7')+R(75,22,1,1,'#bae6fd');
+    if(cf.squirrel)s+=R(64,17,3,2,'#d97706')+R(64,16,3,1,'#92400e')+R(65,15,1,1,'#78350f');
+    if(cf.rabbit)s+=R(38,20,1,3,'#22c55e')+R(37,19,3,1,'#fff')+R(38,18,1,2,'#fef08a');
+    if(cf.fox)s+=R(85,20,3,4,'#475569')+R(86,21,1,2,'#fbbf24')+R(85,19,3,1,'#334155');
+    if(cf.owl)s+=R(53,20,3,3,'#fde047')+R(54,19,1,5,'#fef08a',.8)+R(52,21,5,1,'#fef08a',.8);
+    if(cf.ermine)s+=R(42,20,3,3,'#bae6fd')+R(43,19,1,5,'#e0f2fe')+R(41,21,5,1,'#e0f2fe'); // 雪の結晶ガラス
+    if(cf.fawn)s+=R(71,19,3,3,'#fde047')+R(72,18,1,1,'#d97706')+R(72,22,1,1,'#f59e0b'); // 月光のベル
+    if(cf.cat)s+=R(82,21,3,3,'#334155',.65)+R(83,22,1,1,'#bef264')+R(82,20,3,1,'#92400e'); // ホタルの小瓶
+  }
+  // 分散学習全クリの日替わりごちそう（ラグの上・ごはん皿の横）
+  if(S.pet&&S.pet.feastDate===srsToday()){
+    const ft=S.pet.feastType||'bread';
+    s+=R(54,50,7,2,'#fff')+R(55,52,5,1,'#cbd5e1'); // 白いお皿
+    if(ft==='bread')s+=R(55,48,5,2,'#d97706')+R(56,47,3,1,'#f59e0b')+R(56,48,1,1,'#fef3c7');
+    else if(ft==='tart')s+=R(55,49,5,1,'#d97706')+R(55,48,5,1,'#fef3c7')+R(56,47,1,1,'#e11d48')+R(58,47,1,1,'#7c3aed');
+    else if(ft==='cake')s+=R(55,47,5,3,'#fff')+R(55,48,5,1,'#fda4af')+R(57,46,1,1,'#ef4444');
+    else s+=R(55,48,3,2,'#f8fafc')+R(58,48,1,1,'#f8fafc')+R(56,47,1,1,'#d97706')+R(59,49,2,1,'#f59e0b');
+  }
   if(tod==='night'||dark)s+=R(0,0,96,56,'#0b1240',.3);else if(tod==='evening')s+=R(0,0,96,56,'#ff7a3d',.1);
   return s;
 }
-function roomGoal(){if(S.timer&&S.timer.at)return{x:68,y:22};if(petSleeping())return{x:8,y:25};return null}
+function drawCampAnimal(R,id,x,y){
+  if(id==='bird')return R(x,y,4,3,'#0284c7')+R(x+1,y-1,3,2,'#38bdf8')+R(x+4,y,1,1,'#fbbf24')+R(x+2,y,1,1,'#0f172a')+R(x-1,y+1,1,2,'#0369a1');
+  if(id==='squirrel')return R(x,y,4,4,'#b45309')+R(x+1,y-2,3,2,'#d97706')+R(x+1,y-1,1,1,'#0f172a')+R(x+4,y-1,2,4,'#92400e')+R(x+5,y-3,2,3,'#b45309')+R(x-1,y+2,1,1,'#fde047');
+  if(id==='rabbit')return R(x,y,5,4,'#f8fafc')+R(x+1,y-3,1,3,'#f8fafc')+R(x+3,y-3,1,3,'#f8fafc')+R(x+1,y+1,1,1,'#0f172a')+R(x+5,y+2,1,2,'#e2e8f0');
+  if(id==='fox')return R(x,y,6,5,'#ea580c')+R(x,y-2,4,3,'#f97316')+R(x,y-3,1,1,'#ea580c')+R(x+3,y-3,1,1,'#ea580c')+R(x+1,y-1,1,1,'#0f172a')+R(x+1,y,2,1,'#fff')+R(x+6,y+2,3,3,'#f97316')+R(x+8,y+2,2,2,'#fff');
+  if(id==='ermine')return R(x,y+1,6,3,'#ffffff')+R(x,y-1,3,2,'#ffffff')+R(x+1,y,1,1,'#0f172a')+R(x+6,y+2,2,1,'#ffffff')+R(x+8,y+2,1,1,'#0f172a');
+  if(id==='fawn')return R(x,y,6,4,'#b45309')+R(x+1,y+1,1,1,'#fef3c7')+R(x+3,y+1,1,1,'#fef3c7')+R(x,y-3,3,3,'#d97706')+R(x,y-4,1,1,'#92400e')+R(x+2,y-4,1,1,'#92400e')+R(x+1,y-2,1,1,'#0f172a')+R(x+1,y+4,1,2,'#78350f')+R(x+4,y+4,1,2,'#78350f');
+  if(id==='cat')return R(x,y,6,4,'#a16207')+R(x+1,y+1,1,2,'#713f12')+R(x+3,y+1,1,2,'#713f12')+R(x,y-2,4,3,'#ca8a04')+R(x,y-3,1,1,'#713f12')+R(x+3,y-3,1,1,'#713f12')+R(x+1,y-1,1,1,'#bef264')+R(x+6,y+1,2,2,'#854d0e');
+  return R(x,y,5,5,'#f8fafc')+R(x+1,y-1,3,1,'#e2e8f0')+R(x+1,y+1,1,1,'#f59e0b')+R(x+3,y+1,1,1,'#f59e0b')+R(x+2,y+2,1,1,'#d97706')+R(x,y+3,5,1,'#cbd5e1');
+}
+function campSVG(sec,goalMin,guests,weather){
+  const R=(x,y,w,h,fl,op)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fl}"${op!=null?` opacity="${op}"`:''}/>`;
+  const w=weather||'normal',hr=new Date().getHours(),tod=hr>=5&&hr<10?'morning':hr<16?'day':hr<19?'evening':'night';
+  const isNightSky=(tod==='night'||tod==='evening'||w==='fullmoon'||w==='firefly');
+  const sky=w==='snow'?['#1e293b','#334155']:w==='fullmoon'?['#0f172a','#1e3a5f']:w==='firefly'?['#052e16','#0f172a']:tod==='night'?['#0f172a','#1e293b']:tod==='evening'?['#7c2d12','#ea580c']:tod==='morning'?['#3b82f6','#93c5fd']:['#1d4ed8','#60a5fa'];
+  const list=Array.isArray(guests)?guests:[];
+  let s=R(0,0,96,20,sky[0])+R(0,20,96,16,sky[1]);
+  if(isNightSky){
+    [[8,5],[18,9],[31,4],[46,8],[62,5],[76,10],[88,6],[24,15],[68,14],[82,16]].forEach(([x,y],i)=>{
+      s+=`<rect class="${i%3===0?'cf-twk':''}" x="${x}" y="${y}" width="1" height="1" fill="#fef08a"/>`;
+    });
+    if(w==='fullmoon'){
+      s+=R(74,3,13,13,'#fef08a',.16)+R(76,5,9,9,'#fef08a',.32)+R(77,6,7,7,'#fef9c3')+R(78,7,2,1,'#fde047',.5);
+    }else{
+      s+=R(80,5,5,5,'#fef08a')+R(82,5,4,4,sky[0]);
+    }
+  }else if(w!=='snow'){
+    s+=R(14,7,10,3,'#fff',.75)+R(16,5,6,2,'#fff',.75)+R(64,9,12,3,'#fff',.7)+R(67,7,6,2,'#fff',.7);
+  }
+  if(sec>=5400||list.some(g=>g.id==='owl')){
+    s+=`<g class="cf-star">${R(72,4,2,1,'#fff')+R(74,3,3,1,'#fef08a',.7)+R(77,2,3,1,'#fde047',.35)}</g>`;
+  }
+  const hill=w==='snow'?'#475569':isNightSky?'#14532d':'#166534',tree=w==='snow'?'#334155':isNightSky?'#052e16':'#14532d';
+  s+=R(0,30,96,8,hill)+R(6,27,22,4,hill)+R(58,26,30,5,hill);
+  [4,12,78,86,91].forEach((tx,i)=>{const th=7+(i%2)*3;s+=R(tx,33-th,4,th,tree)+R(tx+1,31-th,2,2,tree);if(w==='snow')s+=R(tx+1,31-th,2,1,'#f8fafc')});
+  const gnd=w==='snow'?'#cbd5e1':isNightSky?'#166534':'#22c55e',gnd2=w==='snow'?'#94a3b8':isNightSky?'#14532d':'#16a34a';
+  s+=R(0,36,96,20,gnd)+R(0,44,96,12,gnd2);
+  if(w==='snow'){
+    [[12,6],[28,12],[44,4],[60,10],[76,6],[88,14],[20,22],[52,18],[70,24]].forEach(([sx,sy],i)=>{
+      s+=`<rect class="cf-snw${(i%3)+1}" x="${sx}" y="${sy}" width="1" height="1" fill="#ffffff"/>`;
+    });
+  }else if(w==='firefly'){
+    [[14,34],[26,39],[34,32],[62,33],[72,38],[84,35],[56,29]].forEach(([fx,fy],i)=>{
+      s+=`<rect class="cf-ffl${(i%2)+1}" x="${fx}" y="${fy}" width="1" height="1" fill="#bef264"/>`;
+    });
+  }
+  s+=R(34,39,28,12,'#f97316',.16)+R(39,41,18,8,'#fbbf24',.2);
+  s+=R(8,41,8,5,'#78350f')+R(9,40,6,2,'#b45309');
+  s+=R(80,38,9,6,'#78350f')+R(81,37,7,2,'#b45309');
+  s+=R(43,45,10,2,'#78350f')+R(44,44,8,2,'#92400e')+R(42,46,2,1,'#451a03')+R(52,46,2,1,'#451a03');
+  s+=`<g class="cf-flm">${R(45,40,6,5,'#ea580c')+R(46,38,4,3,'#f97316')+R(47,36,2,2,'#fb923c')}</g>`;
+  s+=`<g class="cf-flm2">${R(46,41,4,4,'#facc15')+R(47,39,2,3,'#fef08a')}</g>`;
+  s+=`<rect class="cf-spk1" x="46" y="34" width="1" height="1" fill="#fde047"/>`;
+  s+=`<rect class="cf-spk2" x="50" y="33" width="1" height="1" fill="#fb923c"/>`;
+  list.forEach((g,idx)=>{
+    const sp=CAMP_SPOTS[g.spot!=null?g.spot:(idx%CAMP_SPOTS.length)]||CAMP_SPOTS[0];
+    s+=drawCampAnimal(R,g.id,sp[0],sp[1]);
+  });
+  return s;
+}
+function roomGoal(){if(S.timer&&S.timer.camp)return{x:28,y:10};if(S.timer&&S.timer.at)return{x:68,y:22};if(petSleeping())return{x:8,y:25};return null}
 function roomMove(x,y,done){const el=$('rm_pet'),bob=$('pt_stg');if(!el)return;const d=Math.hypot(x-roomPos.x,(y-roomPos.y)*1.3),dur=Math.max(.6,d*.075);el.style.transition=`left ${dur}s linear,bottom ${dur}s linear`;if(bob)bob.classList.add('pt-walk');el.style.left=x+'%';el.style.bottom=y+'%';roomPos={x,y};clearTimeout(roomTmr);roomTmr=setTimeout(()=>{const b2=$('pt_stg');if(b2)b2.classList.remove('pt-walk');done&&done()},dur*1000+60)}
 function roomWander(){if(!$('rm_pet')){clearTimeout(roomTmr);return}const g=roomGoal();if(g){const next=()=>{roomTmr=setTimeout(roomWander,3000)};if(Math.abs(g.x-roomPos.x)>1||Math.abs(g.y-roomPos.y)>1)roomMove(g.x,g.y,next);else next();return}const weak=petMood()==='weak';roomMove(3+Math.random()*76,3+Math.random()*22,()=>{roomTmr=setTimeout(roomWander,(weak?7000:2200)+Math.random()*(weak?6000:4500))})}
 let bubRaf=null;
@@ -1668,8 +1948,9 @@ function vPartner(){
   const tmInfo=topMatInfo(),sleep=petSleeping(),run=Boolean(S.timer&&S.timer.at),opt=petOpt(),f=foodLevel();
   if(!petLine)petLine=pickL(getPetLines());
   const bobCls=run?'pt-run':(opt.mood==='weak'||sleep)?'pt-droop':'pt-float',nxtH=stg.lv<6?stg.next:500,evoPct=stg.lv<6?Math.min(100,Math.max(0,(h-stg.min)/Math.max(1,nxtH-stg.min)*100)):100;
+  const isCamp=Boolean(S.timer&&S.timer.camp);
   return `<div class="card pt-card">
-  <div class="rm"><svg class="rm-bg" viewBox="0 0 96 56" shape-rendering="crispEdges" aria-hidden="true">${roomSVG(h,f,tmInfo.color,sleep)}</svg>
+  <div class="rm" style="${isCamp?'border-color:#9a3412':''}"><svg class="rm-bg" viewBox="0 0 96 56" shape-rendering="crispEdges" aria-hidden="true">${isCamp?campSVG(el(),S.timer.camp,S.timer.guests,S.timer.weather):roomSVG(h,f,tmInfo.color,sleep)}</svg>
     <div id="rm_pet" class="rm-pet" style="left:${roomPos.x}%;bottom:${roomPos.y}%" onclick="talkPet(event)">
       <div id="pt_bub" class="rm-bub ${bubVisible?'':'hide'}">${esc(petLine)}</div>
       <div id="pt_stg" class="${bobCls} ${petAnim?'pt-evo':''}">${petSVG(dispLv,h,tmInfo.color,sleep,run,opt)}</div>
@@ -1692,6 +1973,11 @@ function openPetModal(){
     ${S.pet.claimedLv<realLv?`<button onclick="claimPetGrowth(event);openPetModal()" style="width:100%;margin-bottom:12px;background:#f59e0b">✨ 進化させる（Lv.${S.pet.claimedLv} → Lv.${S.pet.claimedLv+1}）</button>`:''}
     <div class="sub" style="font-weight:700;margin-bottom:4px">進化ステージ</div>
     <div class="pm-grid">${PET_STAGES.map(s=>{const ok=s.lv<=maxUnlocked,on=ok&&dispLv===s.lv;return `<div class="pm-st ${on?'on':''} ${ok?'':'lk'}" onclick="${ok?`setPetView(${s.lv})`:''}">${petSVG(s.lv,ok?Math.max(h,s.min):s.min,tmInfo.color,false,false,ok?{...petOpt(),mood:'normal'}:{mood:'normal'})}<div><b>Lv.${s.lv} ${ok?esc(s.name):'？？？'}</b></div><div class="sub" style="font-size:10px">${s.min}時間〜</div></div>`}).join('')}</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:14px 0 4px">
+      <div class="sub" style="font-weight:700">🔥 焚き火の仲間・おみやげ</div>
+      <button type="button" class="g" style="padding:3px 9px;font-size:11px;border-radius:8px" onclick="toggleSouvenirs()">部屋に飾る: ${S.pet.showSouvenirs===false?'OFF':'ON'}</button>
+    </div>
+    <div class="pm-camp-grid">${CAMP_FRIENDS.map(cf=>{const cnt=(S.pet.campFriends&&S.pet.campFriends[cf.id])||0,ok=cnt>0;return `<div class="pm-cp-it ${ok?(cf.rare?'rare':''):'lk'}"><div class="pm-cp-ico">${cf.ico}</div><div style="min-width:0"><div style="font-weight:700">${ok?`${cf.rare?'★ ':''}${esc(cf.name)}`:'？？？'}</div><div class="sub" style="font-size:10.5px">${ok?`🎁 ${esc(cf.gift)}・${cnt}回`:(cf.hint||(cf.min?`焚き火 ${cf.min}分〜出現`:'焚き火でランダム出現'))}</div></div></div>`}).join('')}</div>
     <div class="sub" style="font-weight:700;margin:14px 0 4px">獲得アイテム・装飾</div>
     <div class="pm-acc">${PET_ACCS.map(a=>{const ok=h>=a.h;return `<div class="pm-ac-it ${ok?'':'lk'}"><span style="font-size:16px">${ok?a.icon:'🔒'}</span><div><div style="font-weight:600">${ok?esc(a.name):'？？？'}</div><div class="sub" style="font-size:10px">${a.h}時間</div></div></div>`}).join('')}</div>
   </div>`;m.style.display='flex';
@@ -1723,7 +2009,9 @@ function vHome(){
 <div class="kpis"><div><span class="sub">今日</span><b id="kpi_td">0分</b></div><div><span class="sub">今月</span><b id="kpi_mo">0時間</b></div><div><span class="sub">累計</span><b id="kpi_al">0時間</b></div></div>
 <div class="sub">今日の目標 <span id="dg"></span></div><div class="bar"><i id="gp" style="background:#f59e0b"></i></div>
 <div class="row" style="margin-top:10px"><div><div class="sub">週目標（時間）</div><input type="number" min="0.5" step="0.5" value="${S.goal}" oninput="setGoal(this.value)" style="margin:0"></div><div><div class="sub">1日目標（分）</div><input type="number" min="0" step="5" value="${DG()}" oninput="setDGoal(this.value)" style="margin:0"></div><div><div class="sub">最低ライン（分）</div><input type="number" min="0" step="5" value="${MN()}" oninput="setMinDay(this.value)" style="margin:0"></div></div></div>${subWeek()}`;
-  const timerHtml=`<div class="card"><h2><span>タイマー</span>${cur?`<span style="color:${col(cur)}">● ${esc(cur.title)}</span>`:''}</h2><div class="clock" id="clock">00:00:00</div>${timerShelfHTML(curId)}<div class="row"><button onclick="toggle()" ${canStart||t?'':'disabled'}>${run?'一時停止':t?'再開':'スタート'}</button>${t?'<button class="r" onclick="finish()">終了して記録</button>':'<button class="g" onclick="openManualLog()">手動で記録</button>'}</div></div>`;
+  const cg=t?(t.camp||0):(Number(S.campGoal)||0),cs=t?el():0,cGuests=(t&&t.camp)?(t.guests||[]):[],cMult=campMultForMin(Math.floor(cs/60)),cFires='🔥'.repeat(Math.min(5,Math.max(1,Math.floor(cs/1800)))),cWi=(t&&t.weather&&CAMP_WEATHER_INFO[t.weather])||{ico:'',label:''};
+  const campCtrl=t?(cg?`<div class="camp-bar-wrap"><div class="camp-bar-top"><span id="camp_lbl">${cWi.ico?cWi.ico+' ':''}${cs>=cg*60?`${cFires} 目標達成！ 出現×${cMult}（${cGuests.length}匹）`:`${cFires} あと${Math.max(0,Math.ceil((cg*60-cs)/60))}分・出現×${cMult}（${cGuests.length}匹）`}</span><span id="camp_icos">${cGuests.map(g=>(CAMP_FRIEND_MAP[g.id]&&CAMP_FRIEND_MAP[g.id].ico)||'').join('')}</span></div><div class="bar" style="height:6px;margin:0"><i id="camp_bar" style="width:${Math.min(100,cs/(cg*60)*100)}%;background:#ea580c"></i></div></div>`:''):`<div class="camp-pills">${[0,30,60,90].map(m=>`<button type="button" class="camp-p ${cg===m?(m?'on':'on norm'):''}" onclick="setCampGoal(${m})">${m?`🔥 ${m}分`:'通常'}</button>`).join('')}</div>`;
+  const timerHtml=`<div class="card"><h2><span>タイマー</span>${cur?`<span style="color:${col(cur)}">● ${esc(cur.title)}</span>`:''}</h2><div class="clock" id="clock">00:00:00</div>${campCtrl}${timerShelfHTML(curId)}<div class="row"><button onclick="toggle()" ${canStart||t?'':'disabled'}>${run?'一時停止':t?'再開':(cg?`🔥 ${cg}分スタート`:'スタート')}</button>${t?'<button class="r" onclick="finish()">終了して記録</button>':'<button class="g" onclick="openManualLog()">手動で記録</button>'}</div></div>`;
   const parts={srs:vSrsHomeCard(),pet:vPartner(),goal:goalHtml,timer:timerHtml},o=homeOrder();
   return `<div style="display:flex;justify-content:flex-end;margin:0 0 8px"><button class="g" style="padding:5px 12px;font-size:12px" onclick="toggleHomeEdit()">${homeEdit?'✓ 完了':'⇅ 並べ替え'}</button></div>`+
   o.map((id,i)=>`<div class="hc ${homeEdit?'edit':''}">${homeEdit?`<div class="hc-bar"><b>${HOME_NAME[id]}</b><span><button class="g" onclick="moveHome('${id}',-1)" ${i?'':'disabled'}>↑</button><button class="g" onclick="moveHome('${id}',1)" ${i<o.length-1?'':'disabled'}>↓</button></span></div>`:''}${parts[id]}</div>`).join('');
@@ -1756,14 +2044,14 @@ function rc(){const pv=prevTo(),fr=ed.fr!==''&&ed.fr!=null?+ed.fr:(pv!=null?pv+1
 function setTo(v){ed.to=v;rc()}function setFr(v){ed.fr=v;rc()}
 let _u=0;const uid=()=>{_u=Math.max(_u+1,Date.now());return _u};
 function resFr(e){if(e.to===''||e.to==null)return null;if(e.fr!==''&&e.fr!=null)return +e.fr;if(e.amt!==''&&e.amt!=null&&+e.amt>0)return +e.to-+e.amt+1;const pv=prevTo();if(pv!=null)return pv+1;return null}
-function saveEd(){const e=ed;if(!e.mid||!(e.sec>0))return;const r={id:e.id||uid(),mid:+e.mid,t:e.t,sec:Math.round(e.sec),amt:e.amt===''||e.amt==null?null:+e.amt,to:e.to===''||e.to==null?null:+e.to,fr:resFr(e),focus:e.focus||0,memo:e.memo||'',nt:e.nt||0};
+function saveEd(){const e=ed;if(!e.mid||!(e.sec>0))return;const r={id:e.id||uid(),mid:+e.mid,t:e.t,sec:Math.round(e.sec),amt:e.amt===''||e.amt==null?null:+e.amt,to:e.to===''||e.to==null?null:+e.to,fr:resFr(e),focus:e.focus||0,memo:e.memo||'',nt:e.nt||0};if(e.camp)r.camp=e.camp;
 const i=S.logs.findIndex(l=>l.id==r.id);if(i>=0)S.logs[i]=r;else S.logs.push(r);if(mat(r.mid)&&!mat(r.mid).arc)S.sel=r.mid;ed=null;const m=mat(r.mid);petLine=pickL([`「${m?m.title:'勉強'}」、がんばったね！`,`${hm(r.sec)}も続けられるなんて、すごいよ。`,'ぼくまで元気になってきたよ！']);showBubble(5000);save();render()}
 function openManualLog(){tab='log';addNew()}
 function addNew(mid){const defId=mid||ensureValidSel()||(S.mats[0]&&S.mats[0].id);ed={id:null,mid:defId,t:Date.now(),sec:1800,amt:'',fr:'',to:'',focus:0,memo:''};render()}
 function editLog(id){const l=S.logs.find(x=>x.id==id);if(!l)return;tab='log';ed={...l,amt:l.amt??'',fr:l.fr??'',to:l.to??''};render();if($('main'))$('main').scrollTo(0,0)}
 function vLog(){const ls=[...S.logs].sort((a,b)=>b.t-a.t).slice(0,150),g={};ls.forEach(l=>(g[dk(l.t)]=g[dk(l.t)]||[]).push(l));
 return (ed?vForm():S.mats.length?`<div class="card"><h2><span>教材をタップして記録を追加</span><span class="sub" style="font-weight:400">★お気に入り優先</span></h2>${logShelfHTML(null,'addNew')}</div>`:'')+
-`<div class="card"><h2>タイムライン</h2>${ls.length?Object.entries(g).map(([d,a])=>{const dd=new Date(d.replace(/-/g,'/'));return `<div class="dh"><b>${dd.getMonth()+1}/${dd.getDate()}（${DW[dd.getDay()]}）</b><span>${hm(sm(a))}</span></div>`+a.map(l=>{const m=mat(l.mid);return `<div class="it"><div style="width:4px;height:44px;border-radius:2px;background:${col(m)};flex:none"></div>${cover(m)}<div class="it-body"><b>${esc(m?m.title:'削除済み')}</b>${m&&m.arc?' <span class="arc-tag">完了</span>':''}<div class="sub">${l.nt?'':tm(l.t)+'〜 '}<b style="color:var(--tx)">${hm(l.sec)}</b>${l.amt!=null?' ／ '+l.amt+(m?m.unit:'')+(l.to!=null?'（'+(l.fr!=null?l.fr:'')+'〜'+l.to+'）':''):''}${l.focus?' ／ '+['','△','○','◎'][l.focus]:''}${l.memo?'<br>'+esc(l.memo):''}</div></div><button class="g" onclick="editLog(${l.id})">編集</button></div>`}).join('')}).join(''):'<div class="sub">記録がありません</div>'}</div>`}
+`<div class="card"><h2>タイムライン</h2>${ls.length?Object.entries(g).map(([d,a])=>{const dd=new Date(d.replace(/-/g,'/'));return `<div class="dh"><b>${dd.getMonth()+1}/${dd.getDate()}（${DW[dd.getDay()]}）</b><span>${hm(sm(a))}</span></div>`+a.map(l=>{const m=mat(l.mid);return `<div class="it"><div style="width:4px;height:44px;border-radius:2px;background:${col(m)};flex:none"></div>${cover(m)}<div class="it-body"><b>${esc(m?m.title:'削除済み')}</b>${m&&m.arc?' <span class="arc-tag">完了</span>':''}${l.camp?`<span class="camp-tag">${'🔥'.repeat(Math.min(5,Math.max(1,Math.floor(l.sec/1800))))}${l.camp.guests&&l.camp.guests.length?` ${l.camp.guests.length}匹`:''}</span>`:''}<div class="sub">${l.nt?'':tm(l.t)+'〜 '}<b style="color:var(--tx)">${hm(l.sec)}</b>${l.amt!=null?' ／ '+l.amt+(m?m.unit:'')+(l.to!=null?'（'+(l.fr!=null?l.fr:'')+'〜'+l.to+'）':''):''}${l.focus?' ／ '+['','△','○','◎'][l.focus]:''}${l.memo?'<br>'+esc(l.memo):''}</div></div><button class="g" onclick="editLog(${l.id})">編集</button></div>`}).join('')}).join(''):'<div class="sub">記録がありません</div>'}</div>`}
 
 /* 振り返り */
 function jumpLatest(){
@@ -2051,6 +2339,7 @@ document.addEventListener('keydown',e=>{
   if($('srsLb').classList.contains('on')){if(e.key==='Escape')srsCloseLb();return}
   if($('srsRev').classList.contains('on')){
     if(e.key==='Escape'){srsExitRev();return}
+    if(SRS.batchPause)return;
     if(!SRS.ansShown&&(e.key===' '||e.key==='Enter')){e.preventDefault();SRS.ansShown=true;srsRenderRev()}
     else if(SRS.ansShown&&e.key>='1'&&e.key<='4'){e.preventDefault();srsRate(+e.key)}
     else if((e.key==='Backspace'||e.key==='z'||e.key==='Z')&&SRS.hist.length){e.preventDefault();srsUndoRev()}
