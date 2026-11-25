@@ -384,8 +384,7 @@ textarea{min-height:100px;font-size:13.5px;line-height:1.55}
 <nav>
   <button data-t="home"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5"/></svg><span>ホーム</span></button>
   <button data-t="srs"><svg viewBox="0 0 24 24"><path d="M6 6.5V4.5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-2"/><rect x="3" y="6.5" width="14" height="15" rx="2"/><polyline points="6.8 14.2 9.3 16.7 13.5 11.5"/></svg><span>復習</span><i id="navSrsBdg" class="nav-bdg">0</i></button>
-  <button data-t="log"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>記録</span></button>
-  <button data-t="stat"><svg viewBox="0 0 24 24"><path d="M4 19h16"/><rect x="6" y="11" width="3" height="8" rx="1"/><rect x="11" y="6" width="3" height="13" rx="1"/><rect x="16" y="13" width="3" height="6" rx="1"/></svg><span>振り返り</span></button>
+  <button data-t="stat"><svg viewBox="0 0 24 24"><path d="M2.5 20.5h19"/><rect x="3.5" y="10.5" width="4" height="10" rx="1.2"/><rect x="10" y="3.5" width="4" height="17" rx="1.2"/><rect x="16.5" y="7.5" width="4" height="13" rx="1.2"/></svg><span>振り返り</span></button>
   <button data-t="mat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l-.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg><span>設定</span></button>
 </nav>
 <script>
@@ -1671,8 +1670,8 @@ function finish(){
     petLine=pickL(['おつかれさま！ぽかぽかするよ。',`${hm(s)}もがんばったね。おつかれさま！`,'ふぅ…ぼくまで満たされたよ。','ありがとう！元気がわいてきたよ。']);
   }
   showBubble(5500);
-  if(s>=1){ed={id:null,fin:1,mid:t.mid,t:t.st,sec:s,amt:'',fr:'',to:'',focus:0,memo:'',camp:campData};tab='log'}
-  save();render();
+  if(s>=1){ed={id:null,fin:1,mid:t.mid,t:t.st,sec:s,amt:'',fr:'',to:'',focus:0,memo:'',camp:campData};tab='home'}
+  save();render();if(s>=1&&$('main'))$('main').scrollTo(0,0);
 }
 const FLAME_ICO='<svg viewBox="0 0 24 24"><path d="M12 2c.5 4-3 6.5-3 10.5a5 5 0 0 0 10 0c0-3.5-2.5-6-3.5-7.5-.3 1.8-1.3 2.8-2.3 3.2C13.6 6 13.3 3.8 12 2z"/></svg>';
 function fmtMinSec(sec){const s=Math.max(0,Math.floor(sec)),m=Math.floor(s/60),r=s%60;return p2(m)+':'+p2(r)}
@@ -2033,12 +2032,12 @@ function vHome(){
   const wiTxt=cWi.label?`${cWi.ico} ${cWi.label} ・ `:'';
   const campCtrl=t?(cg?`<div class="camp-bar-wrap"><div class="camp-bar-top"><span id="camp_lbl">${wiTxt}<span class="camp-em">${cs>=cg*60?'延長中':'焚き火'}</span> ・ 出現×${cMult} ・ ${cGuests.length}匹</span><span id="camp_icos">${cGuests.map(g=>(CAMP_FRIEND_MAP[g.id]&&CAMP_FRIEND_MAP[g.id].ico)||'').join('')}</span></div><div class="bar" style="height:3px;margin:0"><i id="camp_bar" style="width:${Math.min(100,cs/(cg*60)*100)}%;background:${cs>=cg*60?'#059669':'#d97706'}"></i></div></div>`:''):`<div class="camp-pills-wrap"><div class="camp-pills" role="tablist">${[0,30,60,90].map(m=>`<button type="button" class="camp-p ${cg===m?(m?'on':'on norm'):''}" onclick="setCampGoal(${m})">${m?`${m}分`:'フリー'}</button>`).join('')}</div></div>`;
   const timerHtml=`<div class="card"><h2><span>タイマー</span>${cur?`<span style="color:${col(cur)}">● ${esc(cur.title)}</span>`:''}</h2><div class="clock ${tdInit.over?'over':''}" id="clock">${tdInit.text}</div>${campCtrl}${timerShelfHTML(curId)}<div class="row"><button onclick="toggle()" ${canStart||t?'':'disabled'} >${run?'一時停止':t?'再開':'スタート'}</button>${t?'<button class="r" onclick="finish()">終了して記録</button>':'<button class="g" onclick="openManualLog()">手動で記録</button>'}</div></div>`;
-  const parts={srs:vSrsHomeCard(),pet:vPartner(),goal:goalHtml,timer:timerHtml},o=homeOrder();
-  return `<div style="display:flex;justify-content:flex-end;margin:0 0 8px"><button class="g" style="padding:5px 12px;font-size:12px" onclick="toggleHomeEdit()">${homeEdit?'✓ 完了':'⇅ 並べ替え'}</button></div>`+
+  const parts={srs:vSrsHomeCard(),pet:vPartner(),goal:goalHtml,timer:timerHtml,logs:vLogsCard()},o=homeOrder();
+  return (ed?vForm():'')+`<div style="display:flex;justify-content:flex-end;margin:0 0 8px"><button class="g" style="padding:5px 12px;font-size:12px" onclick="toggleHomeEdit()">${homeEdit?'✓ 完了':'⇅ 並べ替え'}</button></div>`+
   o.map((id,i)=>`<div class="hc ${homeEdit?'edit':''}">${homeEdit?`<div class="hc-bar"><b>${HOME_NAME[id]}</b><span><button class="g" onclick="moveHome('${id}',-1)" ${i?'':'disabled'}>↑</button><button class="g" onclick="moveHome('${id}',1)" ${i<o.length-1?'':'disabled'}>↓</button></span></div>`:''}${parts[id]}</div>`).join('');
 }
-let homeEdit=false;
-const HOME_DEF=['srs','pet','goal','timer'],HOME_NAME={srs:'今日の分散学習',pet:'知識の相棒',goal:'今週の目標',timer:'タイマー'};
+let homeEdit=false,showAllLogs=false;
+const HOME_DEF=['srs','pet','timer','goal','logs'],HOME_NAME={srs:'今日の分散学習',pet:'知識の相棒',timer:'タイマー',goal:'今週の目標',logs:'最近の記録'};
 function homeOrder(){let o=Array.isArray(S.homeOrder)?S.homeOrder.filter(x=>HOME_DEF.includes(x)):[];o=o.filter((x,i)=>o.indexOf(x)===i);HOME_DEF.forEach(x=>{if(!o.includes(x))o.push(x)});return o}
 function toggleHomeEdit(){homeEdit=!homeEdit;render()}
 function moveHome(id,d){const o=homeOrder(),i=o.indexOf(id),j=i+d;if(j<0||j>=o.length)return;[o[i],o[j]]=[o[j],o[i]];S.homeOrder=o;save();render()}
@@ -2067,12 +2066,14 @@ let _u=0;const uid=()=>{_u=Math.max(_u+1,Date.now());return _u};
 function resFr(e){if(e.to===''||e.to==null)return null;if(e.fr!==''&&e.fr!=null)return +e.fr;if(e.amt!==''&&e.amt!=null&&+e.amt>0)return +e.to-+e.amt+1;const pv=prevTo();if(pv!=null)return pv+1;return null}
 function saveEd(){const e=ed;if(!e.mid||!(e.sec>0))return;const r={id:e.id||uid(),mid:+e.mid,t:e.t,sec:Math.round(e.sec),amt:e.amt===''||e.amt==null?null:+e.amt,to:e.to===''||e.to==null?null:+e.to,fr:resFr(e),focus:e.focus||0,memo:e.memo||'',nt:e.nt||0};if(e.camp)r.camp=e.camp;
 const i=S.logs.findIndex(l=>l.id==r.id);if(i>=0)S.logs[i]=r;else S.logs.push(r);if(mat(r.mid)&&!mat(r.mid).arc)S.sel=r.mid;ed=null;const m=mat(r.mid);petLine=pickL([`「${m?m.title:'勉強'}」、がんばったね！`,`${hm(r.sec)}も続けられるなんて、すごいよ。`,'ぼくまで元気になってきたよ！']);showBubble(5000);save();render()}
-function openManualLog(){tab='log';addNew()}
+function openManualLog(){tab='home';addNew();if($('main'))$('main').scrollTo(0,0)}
 function addNew(mid){const defId=mid||ensureValidSel()||(S.mats[0]&&S.mats[0].id);ed={id:null,mid:defId,t:Date.now(),sec:1800,amt:'',fr:'',to:'',focus:0,memo:''};render()}
-function editLog(id){const l=S.logs.find(x=>x.id==id);if(!l)return;tab='log';ed={...l,amt:l.amt??'',fr:l.fr??'',to:l.to??''};render();if($('main'))$('main').scrollTo(0,0)}
-function vLog(){const ls=[...S.logs].sort((a,b)=>b.t-a.t).slice(0,150),g={};ls.forEach(l=>(g[dk(l.t)]=g[dk(l.t)]||[]).push(l));
-return (ed?vForm():S.mats.length?`<div class="card"><h2><span>教材をタップして記録を追加</span><span class="sub" style="font-weight:400">★お気に入り優先</span></h2>${logShelfHTML(null,'addNew')}</div>`:'')+
-`<div class="card"><h2>タイムライン</h2>${ls.length?Object.entries(g).map(([d,a])=>{const dd=new Date(d.replace(/-/g,'/'));return `<div class="dh"><b>${dd.getMonth()+1}/${dd.getDate()}（${DW[dd.getDay()]}）</b><span>${hm(sm(a))}</span></div>`+a.map(l=>{const m=mat(l.mid);return `<div class="it"><div style="width:4px;height:44px;border-radius:2px;background:${col(m)};flex:none"></div>${cover(m)}<div class="it-body"><b>${esc(m?m.title:'削除済み')}</b>${m&&m.arc?' <span class="arc-tag">完了</span>':''}${l.camp&&l.sec>=1800?`<span class="camp-tag">${'🔥'.repeat(Math.min(5,Math.floor(l.sec/1800)))}${l.camp.guests&&l.camp.guests.length?` ${l.camp.guests.length}匹`:''}</span>`:''}<div class="sub">${l.nt?'':tm(l.t)+'〜 '}<b style="color:var(--tx)">${hm(l.sec)}</b>${l.amt!=null?' ／ '+l.amt+(m?m.unit:'')+(l.to!=null?'（'+(l.fr!=null?l.fr:'')+'〜'+l.to+'）':''):''}${l.focus?' ／ '+['','△','○','◎'][l.focus]:''}${l.memo?'<br>'+esc(l.memo):''}</div></div><button class="g" onclick="editLog(${l.id})">編集</button></div>`}).join('')}).join(''):'<div class="sub">記録がありません</div>'}</div>`}
+function editLog(id){const l=S.logs.find(x=>x.id==id);if(!l)return;tab='home';ed={...l,amt:l.amt??'',fr:l.fr??'',to:l.to??''};render();if($('main'))$('main').scrollTo(0,0)}
+function vLogsCard(){
+  const sorted=[...S.logs].sort((a,b)=>b.t-a.t),limit=showAllLogs?150:8,ls=sorted.slice(0,limit),g={};
+  ls.forEach(l=>(g[dk(l.t)]=g[dk(l.t)]||[]).push(l));
+  return `<div class="card"><h2><span>最近の記録</span><button type="button" class="g" style="padding:4px 10px;font-size:11.5px;border-radius:8px" onclick="openManualLog()">＋ 手動追加</button></h2>${ls.length?Object.entries(g).map(([d,a])=>{const dd=new Date(d.replace(/-/g,'/'));return `<div class="dh"><b>${dd.getMonth()+1}/${dd.getDate()}（${DW[dd.getDay()]}）</b><span>${hm(sm(a))}</span></div>`+a.map(l=>{const m=mat(l.mid);return `<div class="it"><div style="width:4px;height:44px;border-radius:2px;background:${col(m)};flex:none"></div>${cover(m)}<div class="it-body"><b>${esc(m?m.title:'削除済み')}</b>${m&&m.arc?' <span class="arc-tag">完了</span>':''}${l.camp&&l.sec>=1800?`<span class="camp-tag">${'🔥'.repeat(Math.min(5,Math.floor(l.sec/1800)))}${l.camp.guests&&l.camp.guests.length?` ${l.camp.guests.length}匹`:''}</span>`:''}<div class="sub">${l.nt?'':tm(l.t)+'〜 '}<b style="color:var(--tx)">${hm(l.sec)}</b>${l.amt!=null?' ／ '+l.amt+(m?m.unit:'')+(l.to!=null?'（'+(l.fr!=null?l.fr:'')+'〜'+l.to+'）':''):''}${l.focus?' ／ '+['','△','○','◎'][l.focus]:''}${l.memo?'<br>'+esc(l.memo):''}</div></div><button class="g" onclick="editLog(${l.id})">編集</button></div>`}).join('')}).join('')+(sorted.length>8?`<button type="button" class="g" style="width:100%;margin-top:10px;padding:9px;font-size:12.5px" onclick="showAllLogs=!showAllLogs;render()">${showAllLogs?'直近8件に戻す':`過去の記録をすべて見る（全${sorted.length}件）`}</button>`:''):'<div class="sub">記録がありません</div>'}</div>`;
+}
 
 /* 振り返り */
 function jumpLatest(){
@@ -2340,7 +2341,8 @@ function render(){
   if(sh){const m=mat(S.timer.mid);mi.innerHTML=`<div><b>${m?esc(m.title):''}</b><span id="mclk">${clk(el())}</span></div><button onclick="toggle()">${S.timer.at?'⏸':'▶'}</button><button class="r" onclick="finish()">終了</button>`}
   mi.style.display=sh?'flex':'none';
   if($('hdrw'))$('hdrw').style.display=sh?'none':'block';
-  $('v').innerHTML={home:vHome,srs:vSrs,log:vLog,stat:vStat,mat:vMat}[tab]();
+  if(tab==='log')tab='home';
+  $('v').innerHTML=({home:vHome,srs:vSrs,stat:vStat,mat:vMat}[tab]||vHome)();
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
   updateSrsBadge();
   tick();
@@ -2349,7 +2351,7 @@ function render(){
 }
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
   const prev=tab;tab=b.dataset.t;
-  if(tab!=='log')ed=null;
+  if(tab!=='home')ed=null;
   if(tab!=='srs'||prev==='srs')srsSubTab='due';
   if(tab==='home'&&prev!=='home')showBubble(4500);
   if(tab==='stat'&&!inR(range().a,range().b).length)jumpLatest();
